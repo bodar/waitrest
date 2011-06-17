@@ -36,16 +36,12 @@ public class Kitchen {
                 filter(where(path(), is(request.url().path()))).
                 filter(where(query(), contains(request.query()))).
                 headOption().
-                map(asResponse());
-    }
-
-    private Callable1<Request, Response> asResponse() {
-        return new Callable1<Request, Response>() {
-            @Override
-            public Response call(Request request) throws Exception {
-                return orders.get(request);
-            }
-        };
+                map(new Callable1<Request, Response>() {
+                    @Override
+                    public Response call(Request request) throws Exception {
+                        return orders.get(request);
+                    }
+                });
     }
 
     public Integer countAll() {

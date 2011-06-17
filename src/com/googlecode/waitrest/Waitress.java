@@ -45,8 +45,8 @@ public class Waitress {
     @Path("order")
     @Priority(Priority.High)
     public Response takeOrder(@FormParam("request") String req, @FormParam("response") String resp) {
-        Request request = parseRequest(req);
-        Response response = response(Status.OK).entity(resp);
+        Request request = HttpMessageParser.parseRequest(req);
+        Response response = HttpMessageParser.parseResponse(resp);
 
         kitchen.receiveOrder(request, response);
 
@@ -57,7 +57,7 @@ public class Waitress {
     @Path("{path:.*}")
     @Priority(Priority.Low)
     public Response serveOrder(@FormParam("request") String request) {
-        return kitchen.serve(parseRequest(request)).getOrElse(response(Status.NOT_FOUND));
+        return kitchen.serve(HttpMessageParser.parseRequest(request)).getOrElse(response(Status.NOT_FOUND));
     }
 
     @PUT
@@ -65,10 +65,6 @@ public class Waitress {
     public Response put(Request request) {
         kitchen.receiveOrder(request);
         return created(request);
-    }
-
-    private Request parseRequest(String req) {
-        return new RequestParser().parse(req).build();
     }
 
     private Response created(Request request) {
