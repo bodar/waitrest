@@ -32,12 +32,20 @@ public class Kitchen {
     }
 
     public Option<Response> serve(Request request) {
-        Option<Request> recordedRequest = sequence(orders.keySet()).filter(where(path(), is(request.url().path()))).filter(where(query(), contains(request.query()))).headOption();
-        if(!recordedRequest.isEmpty()) {
-            Response recordedResponse = orders.get(recordedRequest.get());
-            return some(recordedResponse);
-        }
-        return none(Response.class);
+        return sequence(orders.keySet()).
+                filter(where(path(), is(request.url().path()))).
+                filter(where(query(), contains(request.query()))).
+                headOption().
+                map(asResponse());
+    }
+
+    private Callable1<Request, Response> asResponse() {
+        return new Callable1<Request, Response>() {
+            @Override
+            public Response call(Request request) throws Exception {
+                return orders.get(request);
+            }
+        };
     }
 
     public Integer countAll() {
