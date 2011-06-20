@@ -73,6 +73,6 @@ public class Waitress {
     }
 
     private String html(Url url) {
-        return String.format("<html><head><title>Created</title></head><body><a href='%1$s'>'%1$s'</a></body></html>", url);
+        return String.format("<html><head><title>Created</title></head><body><a href='%1$s'>%1$s</a></body></html>", url);
     }
 }
