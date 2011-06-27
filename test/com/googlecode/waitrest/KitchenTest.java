@@ -49,7 +49,7 @@ public class KitchenTest {
         String responseContent = "bar";
         kitchen.receiveOrder(put("/foo").withInput(responseContent.getBytes()).build());
         Response response = kitchen.serve(get("/foo").build()).get();
-        assertThat(new String((byte[]) response.entity()), Matchers.is(responseContent));
+        assertThat(new String(response.bytes()), Matchers.is(responseContent));
     }
 
     @Test
@@ -66,6 +66,6 @@ public class KitchenTest {
         kitchen.receiveOrder(put("/foo?bar=dan").withInput("dan".getBytes()).build());
         kitchen.receiveOrder(put("/foo?bar=tom").withInput("tom".getBytes()).build());
         Response response = kitchen.serve(get("/foo?ignore=me&bar=tom").build()).get();
-        assertThat(new String((byte[]) response.entity()), Matchers.is("tom"));
+        assertThat(new String(response.bytes()), Matchers.is("tom"));
     }
 }

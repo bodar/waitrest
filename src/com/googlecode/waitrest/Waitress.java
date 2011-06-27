@@ -62,7 +62,7 @@ public class Waitress {
 
     @PUT
     @Path("{path:.*}")
-    public Response put(Request request) {
+    public Response takeOrder(Request request) {
         kitchen.receiveOrder(request);
         return created(request);
     }
