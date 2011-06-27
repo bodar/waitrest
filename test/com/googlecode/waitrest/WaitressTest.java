@@ -31,6 +31,5 @@ public class WaitressTest {
         waitress.takeOrder(put("/cheese").withHeader(CONTENT_TYPE, TEXT_PLAIN).withInput("cheese".getBytes()).build());
 
         assertThat(response(OK).header(CONTENT_TYPE, TEXT_PLAIN).bytes("cheese".getBytes()), is(waitress.serveOrder(get("/cheese").build())));
-
     }
 }
