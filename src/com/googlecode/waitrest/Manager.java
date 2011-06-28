@@ -6,6 +6,8 @@ import com.googlecode.utterlyidle.modules.Module;
 import com.googlecode.utterlyidle.modules.ResourcesModule;
 import com.googlecode.yadic.Container;
 
+import static com.googlecode.utterlyidle.annotations.AnnotatedBindings.annotatedClass;
+
 public class Manager implements ResourcesModule, ApplicationScopedModule {
     @Override
     public Module addPerApplicationObjects(Container container) {
@@ -15,7 +17,7 @@ public class Manager implements ResourcesModule, ApplicationScopedModule {
 
     @Override
     public Module addResources(Resources resources) {
-        resources.add(Waitress.class);
+        resources.add(annotatedClass(Waitress.class));
         return this;
     }
 }

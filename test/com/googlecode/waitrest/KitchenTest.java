@@ -36,7 +36,7 @@ public class KitchenTest {
     @Test
     public void shouldIgnoreExtraQueryParams() {
         kitchen.receiveOrder(get("/test").build(), response(OK).entity("test entity"));
-        assertThat(kitchen.serve(get("/test?param=ignore").build()).get(), is(response(OK).entity("new test")));
+        assertThat(kitchen.serve(get("/test?param=ignore").build()).get(), is(response(OK).entity("test entity")));
     }
 
     @Test

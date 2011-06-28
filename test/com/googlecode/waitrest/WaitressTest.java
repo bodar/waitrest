@@ -1,8 +1,12 @@
 package com.googlecode.waitrest;
 
 import com.googlecode.utterlyidle.*;
+import com.googlecode.utterlyidle.handlers.ClientHttpHandler;
+import com.googlecode.utterlyidle.httpserver.RestServer;
 import org.junit.Test;
 
+import static com.googlecode.utterlyidle.HttpHeaders.ACCEPT;
+import static com.googlecode.utterlyidle.HttpHeaders.CONTENT_LENGTH;
 import static com.googlecode.utterlyidle.HttpHeaders.CONTENT_TYPE;
 import static com.googlecode.utterlyidle.MediaType.TEXT_PLAIN;
 import static com.googlecode.utterlyidle.RequestBuilder.get;
@@ -23,13 +27,13 @@ public class WaitressTest {
 
         waitress.takeOrder(request.toString(), response.toString());
 
-        assertThat(response, is(waitress.serveOrder(request.toString())));
+        assertThat(waitress.serveOrder(request.toString()).toString(), is(response.toString()));
     }
 
     @Test
     public void serveRequestOrder() {
         waitress.takeOrder(put("/cheese").withHeader(CONTENT_TYPE, TEXT_PLAIN).withInput("cheese".getBytes()).build());
 
-        assertThat(response(OK).header(CONTENT_TYPE, TEXT_PLAIN).bytes("cheese".getBytes()), is(waitress.serveOrder(get("/cheese").build())));
+        assertThat(waitress.serveOrder(get("/cheese").build()).toString(), is(response(OK).header(CONTENT_TYPE, TEXT_PLAIN).bytes("cheese".getBytes()).toString()));
     }
 }
