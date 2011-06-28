@@ -38,7 +38,7 @@ public class Waitress {
     @Path("{path:.*}")
     @Priority(Priority.Low)
     public Response serveOrder(Request request) {
-        return kitchen.serve(request).getOrElse(response(Status.NOT_FOUND).header(CONTENT_TYPE, request.headers().getValue(CONTENT_TYPE)));
+        return kitchen.serve(request).getOrElse(response(Status.NOT_FOUND));
     }
 
     @POST

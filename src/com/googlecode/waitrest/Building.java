@@ -6,7 +6,7 @@ import com.googlecode.utterlyidle.httpserver.RestServer;
 public class Building {
 
     public static void main(String[] args) throws Exception {
-        new RestServer(new Restaurant(), ServerConfiguration.defaultConfiguration().port(8001));
+        new RestServer(new Restaurant(), ServerConfiguration.defaultConfiguration().port(8899));
     }
 
 }
