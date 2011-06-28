@@ -31,6 +31,18 @@ public class WaitressTest {
     }
 
     @Test
+    public void serveRequestResponseOrderWithQueryParams() {
+        Request requestWithQueryParam = get("/cheese").withQuery("type", "cheddar").build();
+        Request requestWithoutQueryParam = get("/cheese").build();
+        Response response = response(OK).bytes("cheddar".getBytes());
+
+        waitress.takeOrder(requestWithQueryParam.toString(), response.toString());
+
+        assertThat(waitress.serveOrder(requestWithQueryParam.toString()).toString(), is(response.toString()));
+        assertThat(waitress.serveOrder(requestWithoutQueryParam.toString()).status(), is(Status.NOT_FOUND));
+    }
+
+    @Test
     public void serveRequestOrder() {
         waitress.takeOrder(put("/cheese").withHeader(CONTENT_TYPE, TEXT_PLAIN).withInput("cheese".getBytes()).build());
 
