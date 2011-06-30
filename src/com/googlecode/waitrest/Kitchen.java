@@ -48,6 +48,10 @@ public class Kitchen {
         return orders.size();
     }
 
+    public Map<Request, Response> allOrders() {
+        return orders;
+    }
+
     private Callable1<? super Request, HierarchicalPath> path() {
         return new Callable1<Request, HierarchicalPath>() {
             @Override
