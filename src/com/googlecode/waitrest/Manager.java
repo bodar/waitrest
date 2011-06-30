@@ -1,7 +1,6 @@
 package com.googlecode.waitrest;
 
-import com.googlecode.totallylazy.*;
-import com.googlecode.utterlyidle.*;
+import com.googlecode.utterlyidle.Resources;
 import com.googlecode.utterlyidle.annotations.HttpMethod;
 import com.googlecode.utterlyidle.handlers.ResponseHandlers;
 import com.googlecode.utterlyidle.modules.ApplicationScopedModule;
@@ -10,13 +9,11 @@ import com.googlecode.utterlyidle.modules.ResourcesModule;
 import com.googlecode.utterlyidle.modules.ResponseHandlersModule;
 import com.googlecode.yadic.Container;
 
-import static com.googlecode.totallylazy.Callables.first;
 import static com.googlecode.totallylazy.Predicates.and;
-import static com.googlecode.totallylazy.Predicates.is;
-import static com.googlecode.totallylazy.Sequences.sequence;
 import static com.googlecode.utterlyidle.annotations.AnnotatedBindings.annotatedClass;
 import static com.googlecode.utterlyidle.handlers.RenderingResponseHandler.renderer;
-import static com.googlecode.waitrest.Renderers.*;
+import static com.googlecode.waitrest.Renderers.fileContent;
+import static com.googlecode.waitrest.Renderers.orders;
 import static com.googlecode.waitrest.Waitress.WAITRESS_ORDERS_PATH;
 import static com.googlecode.waitrest.Waitress.WAITRESS_ORDER_PATH;
 
