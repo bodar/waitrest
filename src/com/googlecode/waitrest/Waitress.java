@@ -1,10 +1,14 @@
 package com.googlecode.waitrest;
 
+import com.googlecode.totallylazy.Callable2;
 import com.googlecode.totallylazy.Strings;
 import com.googlecode.utterlyidle.*;
 import com.googlecode.utterlyidle.annotations.*;
 import com.googlecode.utterlyidle.io.Url;
 
+import java.util.Map;
+
+import static com.googlecode.totallylazy.Sequences.sequence;
 import static com.googlecode.utterlyidle.HttpHeaders.CONTENT_TYPE;
 import static com.googlecode.utterlyidle.HttpHeaders.LOCATION;
 import static com.googlecode.utterlyidle.Responses.response;
@@ -13,6 +17,8 @@ import static com.googlecode.utterlyidle.Status.CREATED;
 public class Waitress {
 
     public static final String WAITRESS_ORDER_PATH = "/order";
+    public static final String WAITRESS_ORDERS_PATH = "/orders";
+    private static final String ANY_PATH_EXCEPT_RESERVED_PATH = "{path:[^"+WAITRESS_ORDERS_PATH+"].*}";
 
     private Kitchen kitchen;
 
@@ -29,15 +35,15 @@ public class Waitress {
     }
 
     @GET
-    @Path("orders")
-    @Produces("text/html")
+    @Path(WAITRESS_ORDERS_PATH)
+    @Produces("text/plain")
     @Priority(Priority.High)
-    public String countAll() {
-        return String.valueOf(kitchen.countAll());
+    public Map<Request, Response> allOrders() {
+        return kitchen.allOrders();
     }
 
     @GET
-    @Path("{path:.*}")
+    @Path(ANY_PATH_EXCEPT_RESERVED_PATH)
     @Priority(Priority.Low)
     public Response serveOrder(Request request) {
         return kitchen.serve(request).getOrElse(response(Status.NOT_FOUND));
