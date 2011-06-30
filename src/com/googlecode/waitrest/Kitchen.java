@@ -11,8 +11,6 @@ import com.googlecode.utterlyidle.io.HierarchicalPath;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.googlecode.totallylazy.Option.none;
-import static com.googlecode.totallylazy.Option.some;
 import static com.googlecode.totallylazy.Predicates.*;
 import static com.googlecode.totallylazy.Sequences.sequence;
 import static com.googlecode.utterlyidle.HttpHeaders.CONTENT_TYPE;
