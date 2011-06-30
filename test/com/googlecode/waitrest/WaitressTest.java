@@ -1,12 +1,10 @@
 package com.googlecode.waitrest;
 
-import com.googlecode.utterlyidle.*;
-import com.googlecode.utterlyidle.handlers.ClientHttpHandler;
-import com.googlecode.utterlyidle.httpserver.RestServer;
+import com.googlecode.utterlyidle.Request;
+import com.googlecode.utterlyidle.Response;
+import com.googlecode.utterlyidle.Status;
 import org.junit.Test;
 
-import static com.googlecode.utterlyidle.HttpHeaders.ACCEPT;
-import static com.googlecode.utterlyidle.HttpHeaders.CONTENT_LENGTH;
 import static com.googlecode.utterlyidle.HttpHeaders.CONTENT_TYPE;
 import static com.googlecode.utterlyidle.MediaType.TEXT_PLAIN;
 import static com.googlecode.utterlyidle.RequestBuilder.get;
