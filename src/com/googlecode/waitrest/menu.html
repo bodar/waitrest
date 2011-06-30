@@ -1,14 +1,22 @@
+<!DOCTYPE html>
 <html>
-    <head>
-        <title>Waitrest</title>
-    </head>
-    <body>
-        <form action="" method="post">
-            <label>Request</label>
-            <textarea rows="30" cols="80" name="request"></textarea>
-            <label>Response</label>
-            <textarea rows="30" cols="80" name="response"></textarea>
-            <input type="submit" value="Take order" />
-        </form>
-    </body>
+<head>
+    <title>Waitrest</title>
+    <style type="text/css">
+        textarea {
+            display: block;
+            height: 200px;
+            width: 500px;
+        }
+    </style>
+</head>
+<body>
+<form action="/order" method="post">
+    <label>Request</label>
+    <textarea name="request">GET /cheese HTTP/1.1</textarea>
+    <label>Response</label>
+    <textarea name="response">HTTP/1.1 200 OK&#13;&#10;Content-Length: 5&#13;&#10;&#13;&#10;gouda</textarea>
+    <input type="submit" value="Take order"/>
+</form>
+</body>
 </html>

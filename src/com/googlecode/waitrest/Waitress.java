@@ -12,6 +12,8 @@ import static com.googlecode.utterlyidle.Status.CREATED;
 
 public class Waitress {
 
+    public static final String WAITRESS_ORDER_PATH = "/order";
+
     private Kitchen kitchen;
 
     public Waitress(Kitchen kitchen) {
@@ -19,11 +21,11 @@ public class Waitress {
     }
 
     @GET
-    @Path("order")
+    @Path(WAITRESS_ORDER_PATH)
     @Priority(Priority.High)
     @Produces("text/html")
     public String showMenu() {
-        return Strings.toString(getClass().getResourceAsStream("menu.html"));
+        return "OK";
     }
 
     @GET
@@ -42,7 +44,7 @@ public class Waitress {
     }
 
     @POST
-    @Path("order")
+    @Path(WAITRESS_ORDER_PATH)
     @Priority(Priority.High)
     public Response takeOrder(@FormParam("request") String req, @FormParam("response") String resp) {
         Request request = HttpMessageParser.parseRequest(req);
