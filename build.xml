@@ -17,6 +17,8 @@
     <property name="build.dependencies.dir" value="lib/build"/>
     <property name="runtime.dependencies.dir" value="lib/runtime"/>
     <property name="optional.dependencies.dir" value="lib/optional"/>
+    <property name="release.nodep.jar" value="${release.name}-nodep.jar"/>
+    <property name="release.nodep.jar.path" value="${artifacts}/${release.nodep.jar}"/>
 
     <import file="${build}/macros.xml"/>
     <import file="${build}/shavenmaven.xml"/>
@@ -25,6 +27,10 @@
         <fileset dir="${build.dependencies.dir}" includes="**/*.jar"/>
         <fileset dir="${runtime.dependencies.dir}" includes="*.jar"/>
         <fileset dir="${optional.dependencies.dir}" includes="*.jar"/>
+    </path>
+
+    <path id="runtime.dependencies">
+        <fileset id="runtime.dependencies.fileset" dir="${runtime.dependencies.dir}" includes="**/*.jar"/>
     </path>
 
     <path id="all.jars">
@@ -58,6 +64,35 @@
     <target name="test">
         <test jar="${test.jar.path}" classpathref="all.jars" reports="${reports}"/>
     </target>
+
+    <target name="package-no-dep">
+        <property name="package.spool.dir" value="${artifacts}/spool"/>
+        <property name="package.working.dir" value="${artifacts}/working"/>
+        <delete dir="${package.spool.dir}"/>
+        <mkdir dir="${package.spool.dir}"/>
+        <copy todir="${package.spool.dir}" file="${release.jar.path}">
+            <fileset refid="runtime.dependencies.fileset"/>
+        </copy>
+
+        <delete dir="${package.working.dir}"/>
+        <mkdir dir="${package.working.dir}"/>
+
+        <exec executable="${build}/explode-jars.sh" failonerror="true">
+            <arg value="${package.spool.dir}"/>
+            <arg value="${package.working.dir}"/>
+        </exec>
+        <delete dir="${package.working.dir}/META-INF"/>
+
+        <create.jar
+                jar="${release.nodep.jar.path}"
+                basedir="${package.working.dir}"
+                main.class="com.googlecode.waitrest.Building"
+                version="${build.number}"/>
+
+        <delete dir="${package.working.dir}"/>
+        <delete dir="${package.spool.dir}"/>
+    </target>
+
 
     <target name="package">
         <mkdir dir="${artifacts}"/>

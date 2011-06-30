@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
-	<macrodef name="compile.and.jar">
+    <macrodef name="compile.and.jar">
         <attribute name="src"/>
         <attribute name="jar"/>
         <attribute name="classpathref"/>
@@ -9,7 +9,8 @@
 
         <sequential>
             <mkdir dir="@{classes}"/>
-            <javac srcdir="@{src}" destdir="@{classes}" classpathref="@{classpathref}" target="1.5" debug="true" includeantruntime="false"/>
+            <javac srcdir="@{src}" destdir="@{classes}" classpathref="@{classpathref}" target="1.5" debug="true"
+                   includeantruntime="false"/>
 
             <copy todir="@{classes}">
                 <fileset dir="@{src}">
@@ -64,6 +65,31 @@
 
             <delete dir="${unzipped.jar}"/>
             <fail message="Tests failed" if="failed"/>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="create.jar">
+        <attribute name="jar"/>
+        <attribute name="basedir" default="@{jar}.mf"/>
+        <attribute name="manifest" default="@{jar}.mf"/>
+        <attribute name="version"/>
+        <attribute name="main.class" default=""/>
+        <sequential>
+            <manifest file="@{manifest}">
+                <attribute name="Built-By" value="${user.name}"/>
+                <attribute name="Main-Class" value="@{main.class}"/>
+                <section name="${ant.project.name}">
+                    <attribute name="Specification-Title" value="${ant.project.name}"/>
+                    <attribute name="Specification-Version" value="@{version}"/>
+                    <attribute name="Specification-Vendor" value="${ant.project.name}"/>
+                    <attribute name="Implementation-Title" value="${ant.project.name}"/>
+                    <attribute name="Implementation-Version" value="@{version}"/>
+                    <attribute name="Implementation-Vendor" value="${ant.project.name}"/>
+                </section>
+            </manifest>
+
+            <jar destfile="@{jar}" basedir="@{basedir}" manifest="@{manifest}"/>
+
         </sequential>
     </macrodef>
 
