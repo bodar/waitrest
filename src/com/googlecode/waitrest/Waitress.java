@@ -17,9 +17,9 @@ import static com.googlecode.utterlyidle.proxy.Resource.resource;
 
 public class Waitress {
 
-    public static final String WAITRESS_ORDER_PATH = "/order";
-    public static final String WAITRESS_ORDERS_PATH = "/orders";
-    private static final String ANY_PATH_EXCEPT_RESERVED_PATH = "{path:[^" + WAITRESS_ORDERS_PATH + "].*}";
+    public static final String WAITRESS_ORDER_PATH = "/waitrest/order";
+    public static final String WAITRESS_ORDERS_PATH = "/waitrest/orders";
+    private static final String ANY_PATH = "{path:.*}";
 
     private Kitchen kitchen;
 
@@ -44,7 +44,7 @@ public class Waitress {
     }
 
     @GET
-    @Path(ANY_PATH_EXCEPT_RESERVED_PATH)
+    @Path(ANY_PATH)
     @Priority(Priority.Low)
     public Response serveOrder(Request request) {
         return kitchen.serve(request).getOrElse(response(NOT_FOUND));
