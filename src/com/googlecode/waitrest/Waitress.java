@@ -19,7 +19,7 @@ public class Waitress {
 
     public static final String WAITRESS_ORDER_PATH = "/waitrest/order";
     public static final String WAITRESS_ORDERS_PATH = "/waitrest/orders";
-    private static final String ANY_PATH = "{path:.*}";
+    private static final String ANY_PATH = "{path:[^waitrest/].*}";
 
     private Kitchen kitchen;
 
