@@ -57,7 +57,7 @@ public class RestaurantTest {
         Request unknownRequest = get(server.getUrl() + "cheese").withQuery("type", "gouda").build();
         Response expectedResponse = response(OK).bytes("cheese".getBytes()).header(CONTENT_TYPE, TEXT_PLAIN).header(CONTENT_LENGTH, "6");
 
-        restClient.handle(post(server.getUrl() + "order").withForm("request", request.toString()).withForm("response", expectedResponse.toString()).build());
+        restClient.handle(post(server.getUrl() + Waitress.WAITRESS_ORDER_PATH).withForm("request", request.toString()).withForm("response", expectedResponse.toString()).build());
 
         assertThat(restClient.handle(request), is(expectedResponse));
         assertThat(restClient.handle(unknownRequest).status(), is(Status.NOT_FOUND));
