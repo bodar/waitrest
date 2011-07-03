@@ -71,6 +71,6 @@ public class RestaurantTest {
                 withForm("response", response(NO_CONTENT).toString()).build());
 
         assertThat(response.status(), is(BAD_REQUEST));
-        assertThat(response.toString(), containsString("Request without a method"));
+        assertThat(response.toString(), containsString("Request without a valid method"));
     }
 }
