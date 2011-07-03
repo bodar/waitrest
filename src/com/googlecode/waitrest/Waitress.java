@@ -3,7 +3,10 @@ package com.googlecode.waitrest;
 
 import com.googlecode.totallylazy.Maps;
 import com.googlecode.totallylazy.Pair;
-import com.googlecode.utterlyidle.*;
+import com.googlecode.utterlyidle.HttpMessageParser;
+import com.googlecode.utterlyidle.Request;
+import com.googlecode.utterlyidle.Response;
+import com.googlecode.utterlyidle.Status;
 import com.googlecode.utterlyidle.annotations.*;
 import com.googlecode.utterlyidle.io.Url;
 
@@ -22,7 +25,7 @@ public class Waitress {
 
     public static final String WAITRESS_ORDER_PATH = "/waitrest/order";
     public static final String WAITRESS_ORDERS_PATH = "/waitrest/orders";
-    private static final String ANY_PATH = "{path:[^waitrest/].*}";
+    private static final String ANY_PATH = "{path:^(?!waitrest/order|waitrest/orders).*}";
 
     private Kitchen kitchen;
 
@@ -32,6 +35,7 @@ public class Waitress {
 
     @GET
     @Path("")
+    @Priority(Priority.High)
     public Response root() {
         return redirect(resource(Waitress.class).showMenu());
     }
@@ -56,7 +60,7 @@ public class Waitress {
     @Path(ANY_PATH)
     @Priority(Priority.Low)
     public Response serveOrder(Request request) {
-        return kitchen.serve(request).getOrElse(response(NOT_FOUND));
+        return kitchen.serve(request).getOrElse(response(NOT_FOUND).entity("Order not found"));
     }
 
     @POST
@@ -76,14 +80,14 @@ public class Waitress {
     }
 
     @POST
-    @Path("{path:.*}")
+    @Path(ANY_PATH)
     @Priority(Priority.Low)
     public Response serveOrder(@FormParam("request") String request) {
         return kitchen.serve(HttpMessageParser.parseRequest(request)).getOrElse(response(NOT_FOUND));
     }
 
     @PUT
-    @Path("{path:.*}")
+    @Path(ANY_PATH)
     public Response takeOrder(Request request) {
         kitchen.receiveOrder(request);
         return created(request);
