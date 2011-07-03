@@ -1,6 +1,9 @@
 package com.googlecode.waitrest;
 
-import com.googlecode.utterlyidle.*;
+import com.googlecode.utterlyidle.Request;
+import com.googlecode.utterlyidle.Response;
+import com.googlecode.utterlyidle.ServerConfiguration;
+import com.googlecode.utterlyidle.Status;
 import com.googlecode.utterlyidle.handlers.ClientHttpHandler;
 import com.googlecode.utterlyidle.httpserver.RestServer;
 import org.junit.After;
@@ -12,13 +15,9 @@ import java.io.IOException;
 import static com.googlecode.utterlyidle.HttpHeaders.CONTENT_LENGTH;
 import static com.googlecode.utterlyidle.HttpHeaders.CONTENT_TYPE;
 import static com.googlecode.utterlyidle.MediaType.TEXT_PLAIN;
-import static com.googlecode.utterlyidle.RequestBuilder.get;
-import static com.googlecode.utterlyidle.RequestBuilder.post;
-import static com.googlecode.utterlyidle.RequestBuilder.put;
+import static com.googlecode.utterlyidle.RequestBuilder.*;
 import static com.googlecode.utterlyidle.Responses.response;
-import static com.googlecode.utterlyidle.Status.BAD_REQUEST;
-import static com.googlecode.utterlyidle.Status.NO_CONTENT;
-import static com.googlecode.utterlyidle.Status.OK;
+import static com.googlecode.utterlyidle.Status.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
