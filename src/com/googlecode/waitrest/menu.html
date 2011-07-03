@@ -8,10 +8,15 @@
             height: 200px;
             width: 500px;
         }
+        .error {
+            color: red;
+            display: block;
+        }
     </style>
 </head>
 <body>
 <form action="/waitrest/order" method="post">
+    <span class="error">${error}</span>
     <label>Request</label>
     <textarea name="request">GET /cheese HTTP/1.1</textarea>
     <label>Response</label>

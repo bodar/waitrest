@@ -2,6 +2,8 @@ package com.googlecode.waitrest;
 
 import com.googlecode.totallylazy.Callable1;
 import com.googlecode.utterlyidle.Request;
+import com.googlecode.utterlyidle.Response;
+import com.googlecode.utterlyidle.Status;
 
 public class Callables {
     public static Callable1<Request, String> method() {
@@ -18,6 +20,15 @@ public class Callables {
             @Override
             public String call(Request request) throws Exception {
                 return request.url().path().toString();
+            }
+        };
+    }
+
+    public static Callable1<Response, Status> status() {
+        return new Callable1<Response, Status>() {
+            @Override
+            public Status call(Response response) throws Exception {
+                return response.status();
             }
         };
     }

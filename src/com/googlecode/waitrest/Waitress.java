@@ -1,19 +1,23 @@
 package com.googlecode.waitrest;
 
+
+import com.googlecode.totallylazy.Maps;
+import com.googlecode.totallylazy.Pair;
 import com.googlecode.utterlyidle.HttpMessageParser;
 import com.googlecode.utterlyidle.Request;
 import com.googlecode.utterlyidle.Response;
+import com.googlecode.utterlyidle.Status;
 import com.googlecode.utterlyidle.annotations.*;
 import com.googlecode.utterlyidle.io.Url;
 
+import java.util.Collections;
 import java.util.Map;
 
+import static com.googlecode.totallylazy.Sequences.sequence;
 import static com.googlecode.utterlyidle.HttpHeaders.LOCATION;
 import static com.googlecode.utterlyidle.Responses.response;
 import static com.googlecode.utterlyidle.Status.CREATED;
 import static com.googlecode.utterlyidle.Status.NOT_FOUND;
-import static com.googlecode.utterlyidle.proxy.Resource.redirect;
-import static com.googlecode.utterlyidle.proxy.Resource.resource;
 
 public class Waitress {
 
@@ -31,8 +35,8 @@ public class Waitress {
     @Path(WAITRESS_ORDER_PATH)
     @Priority(Priority.High)
     @Produces("text/html")
-    public String showMenu() {
-        return "OK";
+    public Map<String, String> showMenu() {
+        return Collections.emptyMap();
     }
 
     @GET
@@ -62,7 +66,7 @@ public class Waitress {
 
             return created(request);
         } catch (IllegalArgumentException e) {
-            return redirect(resource(Waitress.class).showMenu());
+            return response(Status.BAD_REQUEST).entity(sequence(Pair.<String, String>pair("error", e.getMessage())).fold(Maps.<String, String>map(), Maps.<String, String>asMap()));
         }
     }
 
