@@ -8,20 +8,32 @@
             height: 200px;
             width: 500px;
         }
+
         .error {
             color: red;
             display: block;
         }
+        div {
+            background-color: #FAFAFA;
+            border: 1px solid #BBBBBB;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
-<form action="/waitrest/order" method="post">
-    <span class="error">${error}</span>
-    <label>Request</label>
-    <textarea name="request">GET /cheese HTTP/1.1</textarea>
-    <label>Response</label>
-    <textarea name="response">HTTP/1.1 200 OK&#13;&#10;Content-Length: 5&#13;&#10;&#13;&#10;gouda</textarea>
-    <input type="submit" value="Take order"/>
-</form>
+<div>
+    <form action="/waitrest/order" method="post">
+        <span class="error">${error}</span>
+        <label>Request</label>
+        <textarea name="request">GET /cheese HTTP/1.1</textarea>
+        <label>Response</label>
+        <textarea name="response">HTTP/1.1 200 OK&#13;&#10;Content-Length: 5&#13;&#10;&#13;&#10;gouda</textarea>
+        <input type="submit" value="Take order"/>
+    </form>
+</div>
+<div>
+    <a href="/waitrest/orders">View all orders</a>
+</div>
 </body>
 </html>
