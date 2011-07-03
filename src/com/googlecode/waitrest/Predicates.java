@@ -1,8 +1,6 @@
 package com.googlecode.waitrest;
 
-import com.googlecode.totallylazy.First;
 import com.googlecode.totallylazy.Pair;
-import com.googlecode.totallylazy.Second;
 import com.googlecode.totallylazy.predicates.LogicalPredicate;
 import com.googlecode.utterlyidle.Request;
 import com.googlecode.utterlyidle.Response;
