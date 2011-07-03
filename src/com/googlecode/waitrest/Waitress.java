@@ -45,7 +45,8 @@ public class Waitress {
     @Priority(Priority.High)
     @Produces("text/html")
     public Map<String, String> showMenu() {
-        return Collections.emptyMap();
+        return model(Pair.<String, String>pair("orderUrl", WAITRESS_ORDER_PATH),
+                     Pair.<String, String>pair("ordersUrl", WAITRESS_ORDERS_PATH));
     }
 
     @GET
@@ -75,8 +76,16 @@ public class Waitress {
 
             return created(request);
         } catch (IllegalArgumentException e) {
-            return response(Status.BAD_REQUEST).entity(sequence(Pair.<String, String>pair("error", e.getMessage())).fold(Maps.<String, String>map(), Maps.<String, String>asMap()));
+            return response(Status.BAD_REQUEST).entity(model(Pair.<String, String>pair("error", e.getMessage()),
+                                                                Pair.<String, String>pair("orderUrl", WAITRESS_ORDER_PATH),
+                                                                Pair.<String, String>pair("ordersUrl", WAITRESS_ORDERS_PATH),
+                                                                Pair.<String, String>pair("request", req),
+                                                                Pair.<String, String>pair("response", resp)));
         }
+    }
+
+    private Map<String, String> model(Pair<String, String>... elements) {
+        return sequence(elements).fold(Maps.<String, String>map(), Maps.<String, String>asMap());
     }
 
     @POST

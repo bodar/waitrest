@@ -20,20 +20,28 @@
             margin-bottom: 10px;
         }
     </style>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("textarea:empty").each(function() {
+                $(this).attr("value", $(this).attr("placeholder"));
+            });
+        });
+    </script>
 </head>
 <body>
 <div>
-    <form action="/waitrest/order" method="post">
+    <form action="${orderUrl}" method="post">
         <span class="error">${error}</span>
         <label>Request</label>
-        <textarea name="request">GET /cheese HTTP/1.1</textarea>
+        <textarea name="request" placeholder="GET /cheese HTTP/1.1">${request}</textarea>
         <label>Response</label>
-        <textarea name="response">HTTP/1.1 200 OK&#13;&#10;Content-Length: 5&#13;&#10;&#13;&#10;gouda</textarea>
+        <textarea name="response" placeholder="HTTP/1.1 200 OK&#13;&#10;Content-Length: 5&#13;&#10;&#13;&#10;gouda">${response}</textarea>
         <input type="submit" value="Take order"/>
     </form>
 </div>
 <div>
-    <a href="/waitrest/orders">View all orders</a>
+    <a href="${ordersUrl}">View all orders</a>
 </div>
 </body>
 </html>
