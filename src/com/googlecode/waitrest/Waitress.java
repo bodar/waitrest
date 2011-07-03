@@ -3,10 +3,7 @@ package com.googlecode.waitrest;
 
 import com.googlecode.totallylazy.Maps;
 import com.googlecode.totallylazy.Pair;
-import com.googlecode.utterlyidle.HttpMessageParser;
-import com.googlecode.utterlyidle.Request;
-import com.googlecode.utterlyidle.Response;
-import com.googlecode.utterlyidle.Status;
+import com.googlecode.utterlyidle.*;
 import com.googlecode.utterlyidle.annotations.*;
 import com.googlecode.utterlyidle.io.Url;
 
