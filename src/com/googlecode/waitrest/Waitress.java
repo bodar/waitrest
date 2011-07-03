@@ -18,6 +18,8 @@ import static com.googlecode.utterlyidle.HttpHeaders.LOCATION;
 import static com.googlecode.utterlyidle.Responses.response;
 import static com.googlecode.utterlyidle.Status.CREATED;
 import static com.googlecode.utterlyidle.Status.NOT_FOUND;
+import static com.googlecode.utterlyidle.proxy.Resource.redirect;
+import static com.googlecode.utterlyidle.proxy.Resource.resource;
 
 public class Waitress {
 
@@ -29,6 +31,12 @@ public class Waitress {
 
     public Waitress(Kitchen kitchen) {
         this.kitchen = kitchen;
+    }
+
+    @GET
+    @Path("")
+    public Response root() {
+        return redirect(resource(Waitress.class).showMenu());
     }
 
     @GET
