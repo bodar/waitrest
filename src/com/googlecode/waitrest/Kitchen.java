@@ -15,9 +15,7 @@ import static com.googlecode.totallylazy.Predicates.*;
 import static com.googlecode.totallylazy.Sequences.sequence;
 import static com.googlecode.utterlyidle.HttpHeaders.CONTENT_TYPE;
 import static com.googlecode.utterlyidle.Responses.response;
-import static com.googlecode.waitrest.Callables.method;
-import static com.googlecode.waitrest.Callables.path;
-import static com.googlecode.waitrest.Callables.query;
+import static com.googlecode.waitrest.Callables.*;
 
 public class Kitchen {
     private Map<Request, Response> orders = new HashMap<Request, Response>();
