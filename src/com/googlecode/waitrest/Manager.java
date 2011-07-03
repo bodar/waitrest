@@ -11,6 +11,7 @@ import com.googlecode.utterlyidle.modules.ResponseHandlersModule;
 import com.googlecode.yadic.Container;
 
 import static com.googlecode.totallylazy.Predicates.and;
+import static com.googlecode.utterlyidle.Status.BAD_REQUEST;
 import static com.googlecode.utterlyidle.annotations.AnnotatedBindings.annotatedClass;
 import static com.googlecode.utterlyidle.handlers.RenderingResponseHandler.renderer;
 import static com.googlecode.waitrest.Renderers.menuRenderer;
@@ -36,7 +37,7 @@ public class Manager implements ResourcesModule, ApplicationScopedModule, Respon
     public Module addResponseHandlers(ResponseHandlers handlers) {
         handlers.add(and(Predicates.method(HttpMethod.GET), Predicates.path(WAITRESS_ORDER_PATH)), renderer(menuRenderer("menu.html")));
         handlers.add(and(Predicates.method(HttpMethod.GET), Predicates.path(WAITRESS_ORDERS_PATH)), renderer(ordersRenderer()));
-        handlers.add(and(Predicates.method(HttpMethod.POST), Predicates.path(WAITRESS_ORDER_PATH), Predicates.status(Status.BAD_REQUEST)), renderer(menuRenderer("menu.html")));
+        handlers.add(and(Predicates.method(HttpMethod.POST), Predicates.path(WAITRESS_ORDER_PATH), Predicates.status(BAD_REQUEST)), renderer(menuRenderer("menu.html")));
         return this;
     }
 
