@@ -6,7 +6,6 @@ import com.googlecode.totallylazy.Predicate;
 import com.googlecode.utterlyidle.QueryParameters;
 import com.googlecode.utterlyidle.Request;
 import com.googlecode.utterlyidle.Response;
-import com.googlecode.utterlyidle.io.HierarchicalPath;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,6 +14,8 @@ import static com.googlecode.totallylazy.Predicates.*;
 import static com.googlecode.totallylazy.Sequences.sequence;
 import static com.googlecode.utterlyidle.HttpHeaders.CONTENT_TYPE;
 import static com.googlecode.utterlyidle.Responses.response;
+import static com.googlecode.waitrest.Callables.path;
+import static com.googlecode.waitrest.Callables.query;
 
 public class Kitchen {
     private Map<Request, Response> orders = new HashMap<Request, Response>();
@@ -42,21 +43,8 @@ public class Kitchen {
                 });
     }
 
-    public Integer countAll() {
-        return orders.size();
-    }
-
     public Map<Request, Response> allOrders() {
         return orders;
-    }
-
-    private Callable1<? super Request, HierarchicalPath> path() {
-        return new Callable1<Request, HierarchicalPath>() {
-            @Override
-            public HierarchicalPath call(Request request) throws Exception {
-                return request.url().path();
-            }
-        };
     }
 
     private Predicate<? super QueryParameters> contains(final QueryParameters optionalParams) {
@@ -68,12 +56,4 @@ public class Kitchen {
         };
     }
 
-    private Callable1<? super Request, QueryParameters> query() {
-        return new Callable1<Request, QueryParameters>() {
-            @Override
-            public QueryParameters call(Request request) throws Exception {
-                return request.query();
-            }
-        };
-    }
 }

@@ -1,7 +1,6 @@
 package com.googlecode.waitrest;
 
 import com.googlecode.utterlyidle.Resources;
-import com.googlecode.utterlyidle.Status;
 import com.googlecode.utterlyidle.annotations.HttpMethod;
 import com.googlecode.utterlyidle.handlers.ResponseHandlers;
 import com.googlecode.utterlyidle.modules.ApplicationScopedModule;
