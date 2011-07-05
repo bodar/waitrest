@@ -67,7 +67,7 @@ public class RestaurantTest {
     @Test
     public void cannotTakeInvalidOrder() throws Exception {
         Response response = restClient.handle(post(server.getUrl() + Waitress.WAITRESS_ORDER_PATH).
-                withForm("request", "invalidMethod /path HTTP/1.1").
+                withForm("request", "/pathWithNoHttpMethod HTTP/1.1").
                 withForm("response", response(NO_CONTENT).toString()).build());
 
         assertThat(response.status(), is(BAD_REQUEST));
