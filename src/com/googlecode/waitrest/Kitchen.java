@@ -2,10 +2,7 @@ package com.googlecode.waitrest;
 
 import com.googlecode.totallylazy.Callable1;
 import com.googlecode.totallylazy.Option;
-import com.googlecode.utterlyidle.Request;
-import com.googlecode.utterlyidle.Requests;
-import com.googlecode.utterlyidle.Response;
-import com.googlecode.utterlyidle.Responses;
+import com.googlecode.utterlyidle.*;
 import com.googlecode.utterlyidle.annotations.HttpMethod;
 
 import java.util.HashMap;
@@ -32,6 +29,7 @@ public class Kitchen {
     public Option<Response> serve(Request request) {
         return sequence(orders.keySet()).
                 filter(where(Requests.path(), is(request.url().path()))).
+                filter(where(Requests.form(), contains(request.form()))).
                 filter(where(Requests.query(), contains(request.query()))).
                 filter(where(Requests.method(), or(is(request.method()), is(HttpMethod.PUT)))).
                 headOption().

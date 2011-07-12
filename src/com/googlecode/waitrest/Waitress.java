@@ -60,7 +60,7 @@ public class Waitress {
     @GET
     @Path(ANY_PATH)
     @Priority(Priority.Low)
-    public Response serveOrder(Request request) {
+    public Response serveGetOrder(Request request) {
         return kitchen.serve(request).getOrElse(response(NOT_FOUND).entity("Order not found"));
     }
 
@@ -91,8 +91,8 @@ public class Waitress {
     @POST
     @Path(ANY_PATH)
     @Priority(Priority.Low)
-    public Response serveOrder(@FormParam("request") String request) {
-        return kitchen.serve(HttpMessageParser.parseRequest(request)).getOrElse(response(NOT_FOUND));
+    public Response servePostOrder(Request request) {
+        return kitchen.serve(request).getOrElse(response(NOT_FOUND));
     }
 
     @PUT

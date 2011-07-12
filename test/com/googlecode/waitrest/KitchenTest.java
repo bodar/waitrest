@@ -1,8 +1,10 @@
 package com.googlecode.waitrest;
 
+import com.googlecode.totallylazy.None;
 import com.googlecode.totallylazy.Option;
 import com.googlecode.utterlyidle.Response;
 import org.hamcrest.CoreMatchers;
+import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 
@@ -10,6 +12,7 @@ import static com.googlecode.totallylazy.Option.none;
 import static com.googlecode.utterlyidle.HttpHeaders.CONTENT_TYPE;
 import static com.googlecode.utterlyidle.RequestBuilder.*;
 import static com.googlecode.utterlyidle.Responses.response;
+import static com.googlecode.utterlyidle.Status.NOT_FOUND;
 import static com.googlecode.utterlyidle.Status.NO_CONTENT;
 import static com.googlecode.utterlyidle.Status.OK;
 import static org.hamcrest.CoreMatchers.is;
@@ -19,10 +22,18 @@ public class KitchenTest {
     private Kitchen kitchen = new Kitchen();
 
     @Test
-    public void serveRequestResponseOrder() {
+    public void serveRequestResponseOrder_get() {
         kitchen.receiveOrder(get("/test").build(), response(OK).entity("test entity"));
 
         assertThat(kitchen.serve(get("/test").build()).get(), is(response(OK).entity("test entity")));
+    }
+
+    @Test
+    public void serveRequestResponseOrder_post() {
+        kitchen.receiveOrder(post("/test").withForm("formParam", "value").build(), response(OK).entity("test entity"));
+
+        assertThat(kitchen.serve(post("/test").withForm("formParam", "value").build()).get(), is(response(OK).entity("test entity")));
+        assertThat(kitchen.serve(post("/test").build()).isEmpty(), is(true));
     }
 
     @Test
@@ -45,6 +56,12 @@ public class KitchenTest {
     public void ignoreExtraQueryParams() {
         kitchen.receiveOrder(get("/test").build(), response(OK).entity("test entity"));
         assertThat(kitchen.serve(get("/test?param=ignore").build()).get(), is(response(OK).entity("test entity")));
+    }
+
+    @Test
+    public void ignoreExtraFormParams() {
+        kitchen.receiveOrder(post("/test").build(), response(OK).entity("test entity"));
+        assertThat(kitchen.serve(post("/test").withForm("params", "ignore").build()).get(), is(response(OK).entity("test entity")));
     }
 
     @Test

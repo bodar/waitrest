@@ -25,7 +25,7 @@ public class Renderers {
         return new Callable1<Map.Entry<Request, Response>, String>() {
             @Override
             public String call(Map.Entry<Request, Response> requestResponseEntry) throws Exception {
-                return format("%s\n%s", requestResponseEntry.getKey(), requestResponseEntry.getValue());
+                return format("%s\n\n%s", requestResponseEntry.getKey(), requestResponseEntry.getValue());
             }
         };
     }

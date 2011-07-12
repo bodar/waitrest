@@ -52,10 +52,23 @@ public class RestaurantTest {
     }
 
     @Test
-    public void serveRequestResponseOrder() throws Exception {
+    public void serveRequestResponseOrder_get() throws Exception {
         String cheeseUrl = server.getUrl() + "cheese";
         Request request = get(cheeseUrl).withQuery("type", "cheddar").build();
         Request unknownRequest = get(cheeseUrl).withQuery("type", "gouda").build();
+        Response expectedResponse = response(OK).bytes("cheese".getBytes()).header(CONTENT_TYPE, TEXT_PLAIN).header(CONTENT_LENGTH, "6");
+
+        restClient.handle(post(server.getUrl() + Waitress.WAITRESS_ORDER_PATH).withForm("request", request.toString()).withForm("response", expectedResponse.toString()).build());
+
+        assertThat(restClient.handle(request), is(expectedResponse));
+        assertThat(restClient.handle(unknownRequest).status(), is(Status.NOT_FOUND));
+    }
+
+    @Test
+    public void serveRequestResponseOrder_post() throws Exception {
+        String cheeseUrl = server.getUrl() + "cheese";
+        Request request = post(cheeseUrl).withForm("type", "cheddar").build();
+        Request unknownRequest = post(cheeseUrl).withForm("type", "gouda").build();
         Response expectedResponse = response(OK).bytes("cheese".getBytes()).header(CONTENT_TYPE, TEXT_PLAIN).header(CONTENT_LENGTH, "6");
 
         restClient.handle(post(server.getUrl() + Waitress.WAITRESS_ORDER_PATH).withForm("request", request.toString()).withForm("response", expectedResponse.toString()).build());

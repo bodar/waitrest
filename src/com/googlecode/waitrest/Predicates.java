@@ -33,11 +33,11 @@ public class Predicates {
         return where(first(Request.class), where(Requests.method(), is(method)));
     }
 
-    public static Predicate<QueryParameters> contains(final QueryParameters optionalParams) {
-        return new Predicate<QueryParameters>() {
+    public static Predicate<Parameters<String, String>> contains(final Parameters<String, String> actualParams) {
+        return new Predicate<Parameters<String, String>>() {
             @Override
-            public boolean matches(QueryParameters requiredParams) {
-                return sequence(requiredParams).forAll(in(sequence(optionalParams)));
+            public boolean matches(Parameters<String, String> recordedParams) {
+                return sequence(recordedParams).forAll(in(sequence(actualParams)));
             }
         };
     }
