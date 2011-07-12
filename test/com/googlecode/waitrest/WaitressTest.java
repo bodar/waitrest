@@ -25,7 +25,7 @@ public class WaitressTest {
 
         waitress.takeOrder(request.toString(), response.toString());
 
-        assertThat(waitress.serveOrder(request.toString()).toString(), is(response.toString()));
+        assertThat(waitress.serveGetOrder(request).toString(), is(response.toString()));
     }
 
     @Test
@@ -36,14 +36,14 @@ public class WaitressTest {
 
         waitress.takeOrder(requestWithQueryParam.toString(), response.toString());
 
-        assertThat(waitress.serveOrder(requestWithQueryParam.toString()).toString(), is(response.toString()));
-        assertThat(waitress.serveOrder(requestWithoutQueryParam.toString()).status(), is(Status.NOT_FOUND));
+        assertThat(waitress.serveGetOrder(requestWithQueryParam).toString(), is(response.toString()));
+        assertThat(waitress.serveGetOrder(requestWithoutQueryParam).status(), is(Status.NOT_FOUND));
     }
 
     @Test
     public void serveRequestOrder() {
         waitress.takeOrder(put("/cheese").withHeader(CONTENT_TYPE, TEXT_PLAIN).withInput("cheese".getBytes()).build());
 
-        assertThat(waitress.serveOrder(get("/cheese").build()).toString(), is(response(OK).header(CONTENT_TYPE, TEXT_PLAIN).bytes("cheese".getBytes()).toString()));
+        assertThat(waitress.serveGetOrder(get("/cheese").build()).toString(), is(response(OK).header(CONTENT_TYPE, TEXT_PLAIN).bytes("cheese".getBytes()).toString()));
     }
 }
