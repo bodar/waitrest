@@ -1,6 +1,10 @@
 package com.googlecode.waitrest;
 
+import com.googlecode.totallylazy.Pair;
+import com.googlecode.totallylazy.Predicate;
+import com.googlecode.utterlyidle.Request;
 import com.googlecode.utterlyidle.Resources;
+import com.googlecode.utterlyidle.Response;
 import com.googlecode.utterlyidle.annotations.HttpMethod;
 import com.googlecode.utterlyidle.handlers.ResponseHandlers;
 import com.googlecode.utterlyidle.modules.ApplicationScopedModule;
@@ -8,6 +12,8 @@ import com.googlecode.utterlyidle.modules.Module;
 import com.googlecode.utterlyidle.modules.ResourcesModule;
 import com.googlecode.utterlyidle.modules.ResponseHandlersModule;
 import com.googlecode.yadic.Container;
+
+import java.util.Map;
 
 import static com.googlecode.totallylazy.Predicates.and;
 import static com.googlecode.utterlyidle.Status.BAD_REQUEST;
@@ -38,8 +44,18 @@ public class Manager implements ResourcesModule, ApplicationScopedModule, Respon
         handlers.add(and(Predicates.method(HttpMethod.GET), Predicates.path(WAITRESS_ORDER_PATH)), renderer(fileRenderer("menu.html")));
         handlers.add(and(Predicates.method(HttpMethod.GET), Predicates.path(WAITRESS_ORDERS_PATH)), renderer(textRenderer()));
         handlers.add(and(Predicates.method(HttpMethod.POST), Predicates.path(WAITRESS_ORDER_PATH), Predicates.status(BAD_REQUEST)), renderer(fileRenderer("menu.html")));
-        handlers.add(and(Predicates.method(HttpMethod.POST), Predicates.path(WAITRESS_ORDER_PATH), Predicates.status(CREATED)), renderer(fileRenderer("get.html")));
+        handlers.add(and(Predicates.method(HttpMethod.POST), Predicates.path(WAITRESS_ORDER_PATH), Predicates.status(CREATED), modelContainsHttpMethod(HttpMethod.GET)), renderer(fileRenderer("get.html")));
+        handlers.add(and(Predicates.method(HttpMethod.POST), Predicates.path(WAITRESS_ORDER_PATH), Predicates.status(CREATED)), renderer(fileRenderer("notGet.html")));
         return this;
+    }
+
+    private Predicate<Pair<Request, Response>> modelContainsHttpMethod(final String httpMethod) {
+        return new Predicate<Pair<Request, Response>>() {
+            @Override
+            public boolean matches(Pair<Request, Response> requestResponsePair) {
+                return ((Map<String, String>) requestResponsePair.second().entity()).get("method").equalsIgnoreCase(httpMethod);
+            }
+        };
     }
 
 }
