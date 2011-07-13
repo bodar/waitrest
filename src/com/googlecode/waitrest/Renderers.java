@@ -13,7 +13,7 @@ import static com.googlecode.totallylazy.Sequences.sequence;
 import static java.lang.String.format;
 
 public class Renderers {
-    public static Renderer<Map<Request, Response>> ordersRenderer() {
+    public static Renderer<Map<Request, Response>> textRenderer() {
         return new Renderer<Map<Request, Response>>() {
             public String render(Map<Request, Response> orders) throws Exception {
                 return sequence(orders.entrySet()).map(toDisplay()).toString("\n\n---------------------------------------------------\n\n");
@@ -30,7 +30,7 @@ public class Renderers {
         };
     }
 
-    public static Renderer<Map<String, String>> menuRenderer(final String file) {
+    public static Renderer<Map<String, String>> fileRenderer(final String file) {
         return new Renderer<Map<String, String>>() {
             public String render(Map<String, String> model) throws Exception {
                 String fileContent = Strings.toString(getClass().getResourceAsStream(file));

@@ -104,10 +104,6 @@ public class Waitress {
 
     private Response created(Request request) {
         return response(CREATED).
-                header(LOCATION, request.url().toString()).entity(html(request.url()));
-    }
-
-    private String html(Url url) {
-        return String.format("<html><head><title>Created</title></head><body><a href='%1$s'>%1$s</a></body></html>", url);
+                header(LOCATION, request.url().toString()).entity(model(Pair.<String, String>pair("url", request.url().toString())));
     }
 }
