@@ -68,6 +68,7 @@ public class RestaurantTest {
     public void serveRequestResponseOrder_post() throws Exception {
         String cheeseUrl = server.getUrl() + "cheese";
         Request request = post(cheeseUrl).withForm("type", "cheddar").build();
+        System.out.println("request = " + request);
         Request unknownRequest = post(cheeseUrl).withForm("type", "gouda").build();
         Response expectedResponse = response(OK).bytes("cheese".getBytes()).header(CONTENT_TYPE, TEXT_PLAIN).header(CONTENT_LENGTH, "6");
 

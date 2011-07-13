@@ -104,6 +104,7 @@ public class Waitress {
 
     private Response created(Request request) {
         return response(CREATED).
-                header(LOCATION, request.url().toString()).entity(model(Pair.<String, String>pair("url", request.url().toString())));
+                header(LOCATION, request.url().toString()).entity(model(Pair.<String, String>pair("url", request.url().toString()),
+                                                                        Pair.<String, String>pair("method", request.method())));
     }
 }
