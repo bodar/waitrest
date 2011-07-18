@@ -25,19 +25,11 @@ public class Predicates {
         };
     }
 
-    public static LogicalPredicate<Pair<Request, Response>> status(final Status status) {
-        return where(second(Response.class), where(Responses.status(), is(status)));
-    }
-
-    public static LogicalPredicate<Pair<Request, Response>> method(final String method) {
-        return where(first(Request.class), where(Requests.method(), is(method)));
-    }
-
-    public static Predicate<Parameters<String, String>> contains(final Parameters<String, String> actualParams) {
-        return new Predicate<Parameters<String, String>>() {
+    public static <T> LogicalPredicate<Iterable<T>> containedBy(final Iterable<T> superset) {
+        return new LogicalPredicate<Iterable<T>>() {
             @Override
-            public boolean matches(Parameters<String, String> recordedParams) {
-                return sequence(recordedParams).forAll(in(sequence(actualParams)));
+            public boolean matches(Iterable<T> subset) {
+                return sequence(subset).forAll(in(sequence(superset)));
             }
         };
     }

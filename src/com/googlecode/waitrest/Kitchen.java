@@ -11,7 +11,7 @@ import java.util.Map;
 import static com.googlecode.totallylazy.Predicates.*;
 import static com.googlecode.totallylazy.Sequences.sequence;
 import static com.googlecode.utterlyidle.HttpHeaders.CONTENT_TYPE;
-import static com.googlecode.waitrest.Predicates.contains;
+import static com.googlecode.waitrest.Predicates.containedBy;
 
 public class Kitchen {
     private Map<Request, Response> orders = new HashMap<Request, Response>();
@@ -29,8 +29,8 @@ public class Kitchen {
     public Option<Response> serve(Request request) {
         return sequence(orders.keySet()).
                 filter(where(Requests.path(), is(request.url().path()))).
-                filter(where(Requests.form(), contains(request.form()))).
-                filter(where(Requests.query(), contains(request.query()))).
+                filter(where(Requests.form(), containedBy(request.form()))).
+                filter(where(Requests.query(), containedBy(request.query()))).
                 filter(where(Requests.method(), or(is(request.method()), is(HttpMethod.PUT)))).
                 headOption().
                 map(response());

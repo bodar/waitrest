@@ -2,9 +2,7 @@ package com.googlecode.waitrest;
 
 import com.googlecode.totallylazy.Pair;
 import com.googlecode.totallylazy.Predicate;
-import com.googlecode.utterlyidle.Request;
-import com.googlecode.utterlyidle.Resources;
-import com.googlecode.utterlyidle.Response;
+import com.googlecode.utterlyidle.*;
 import com.googlecode.utterlyidle.annotations.HttpMethod;
 import com.googlecode.utterlyidle.handlers.ResponseHandlers;
 import com.googlecode.utterlyidle.modules.ApplicationScopedModule;
@@ -41,11 +39,11 @@ public class Manager implements ResourcesModule, ApplicationScopedModule, Respon
 
     @Override
     public Module addResponseHandlers(ResponseHandlers handlers) {
-        handlers.add(and(Predicates.method(HttpMethod.GET), Predicates.path(WAITRESS_ORDER_PATH)), renderer(fileRenderer("menu.html")));
-        handlers.add(and(Predicates.method(HttpMethod.GET), Predicates.path(WAITRESS_ORDERS_PATH)), renderer(textRenderer()));
-        handlers.add(and(Predicates.method(HttpMethod.POST), Predicates.path(WAITRESS_ORDER_PATH), Predicates.status(BAD_REQUEST)), renderer(fileRenderer("menu.html")));
-        handlers.add(and(Predicates.method(HttpMethod.POST), Predicates.path(WAITRESS_ORDER_PATH), Predicates.status(CREATED), modelContainsHttpMethod(HttpMethod.GET)), renderer(fileRenderer("get.html")));
-        handlers.add(and(Predicates.method(HttpMethod.POST), Predicates.path(WAITRESS_ORDER_PATH), Predicates.status(CREATED)), renderer(fileRenderer("notGet.html")));
+        handlers.add(and(Requests.method(HttpMethod.GET), Predicates.path(WAITRESS_ORDER_PATH)), renderer(fileRenderer("menu.html")));
+        handlers.add(and(Requests.method(HttpMethod.GET), Predicates.path(WAITRESS_ORDERS_PATH)), renderer(textRenderer()));
+        handlers.add(and(Requests.method(HttpMethod.POST), Predicates.path(WAITRESS_ORDER_PATH), Responses.status(BAD_REQUEST)), renderer(fileRenderer("menu.html")));
+        handlers.add(and(Requests.method(HttpMethod.POST), Predicates.path(WAITRESS_ORDER_PATH), Responses.status(CREATED), modelContainsHttpMethod(HttpMethod.GET)), renderer(fileRenderer("get.html")));
+        handlers.add(and(Requests.method(HttpMethod.POST), Predicates.path(WAITRESS_ORDER_PATH), Responses.status(CREATED)), renderer(fileRenderer("notGet.html")));
         return this;
     }
 
