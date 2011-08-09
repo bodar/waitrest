@@ -86,7 +86,7 @@
         <create.jar
                 jar="${release.nodep.jar.path}"
                 basedir="${package.working.dir}"
-                main.class="com.googlecode.waitrest.Building"
+                main.class="com.googlecode.waitrest.Main"
                 version="${build.number}"/>
 
         <delete dir="${package.working.dir}"/>
