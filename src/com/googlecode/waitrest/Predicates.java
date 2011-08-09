@@ -2,14 +2,14 @@ package com.googlecode.waitrest;
 
 import com.googlecode.totallylazy.Callable1;
 import com.googlecode.totallylazy.Pair;
-import com.googlecode.totallylazy.Predicate;
 import com.googlecode.totallylazy.predicates.LogicalPredicate;
-import com.googlecode.utterlyidle.*;
+import com.googlecode.utterlyidle.Request;
+import com.googlecode.utterlyidle.Requests;
+import com.googlecode.utterlyidle.Response;
 
 import static com.googlecode.totallylazy.Callables.first;
-import static com.googlecode.totallylazy.Callables.second;
-import static com.googlecode.totallylazy.Predicates.*;
-import static com.googlecode.totallylazy.Sequences.sequence;
+import static com.googlecode.totallylazy.Predicates.is;
+import static com.googlecode.totallylazy.Predicates.where;
 
 public class Predicates {
     public static LogicalPredicate<Pair<Request, Response>> path(final String path) {
@@ -21,15 +21,6 @@ public class Predicates {
             @Override
             public String call(I input) throws Exception {
                 return callable.call(input).toString();
-            }
-        };
-    }
-
-    public static <T> LogicalPredicate<Iterable<T>> containedBy(final Iterable<T> superset) {
-        return new LogicalPredicate<Iterable<T>>() {
-            @Override
-            public boolean matches(Iterable<T> subset) {
-                return sequence(subset).forAll(in(sequence(superset)));
             }
         };
     }
