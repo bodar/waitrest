@@ -2,20 +2,15 @@ package com.googlecode.waitrest;
 
 
 import com.googlecode.funclate.Model;
-import com.googlecode.totallylazy.Maps;
-import com.googlecode.totallylazy.Pair;
 import com.googlecode.utterlyidle.HttpMessageParser;
 import com.googlecode.utterlyidle.Request;
 import com.googlecode.utterlyidle.Response;
-import static com.googlecode.funclate.Model.*;
 import com.googlecode.utterlyidle.Status;
 import com.googlecode.utterlyidle.annotations.*;
-import com.googlecode.utterlyidle.io.Url;
 
-import java.util.Collections;
 import java.util.Map;
 
-import static com.googlecode.totallylazy.Sequences.sequence;
+import static com.googlecode.funclate.Model.model;
 import static com.googlecode.utterlyidle.HttpHeaders.LOCATION;
 import static com.googlecode.utterlyidle.Responses.response;
 import static com.googlecode.utterlyidle.Status.CREATED;
@@ -48,8 +43,6 @@ public class Waitress {
     @Produces("text/html")
     public Model showMenu() {
         return model().add("orderUrl", WAITRESS_ORDER_PATH).add("ordersUrl", WAITRESS_ORDERS_PATH);
-//        return model(Pair.<String, String>pair("orderUrl", WAITRESS_ORDER_PATH),
-//                     Pair.<String, String>pair("ordersUrl", WAITRESS_ORDERS_PATH));
     }
 
     @GET
@@ -85,17 +78,8 @@ public class Waitress {
                                                         add("ordersUrl", WAITRESS_ORDERS_PATH).
                                                         add("request", req).
                                                         add("response", resp));
-//            return response(Status.BAD_REQUEST).entity(model(Pair.<String, String>pair("error", e.getMessage()),
-//                                                                Pair.<String, String>pair("orderUrl", WAITRESS_ORDER_PATH),
-//                                                                Pair.<String, String>pair("ordersUrl", WAITRESS_ORDERS_PATH),
-//                                                                Pair.<String, String>pair("request", req),
-//                                                                Pair.<String, String>pair("response", resp)));
         }
     }
-
-//    private Map<String, String> model(Pair<String, String>... elements) {
-//        return sequence(elements).fold(Maps.<String, String>map(), Maps.<String, String>asMap());
-//    }
 
     @POST
     @Path(ANY_PATH)
@@ -115,8 +99,5 @@ public class Waitress {
         return response(CREATED).header(LOCATION, request.url().toString()).entity(model().
                                                                                 add("url", request.url().toString()).
                                                                                 add("method", request.method()));
-//        return response(CREATED).
-//                header(LOCATION, request.url().toString()).entity(model(Pair.<String, String>pair("url", request.url().toString()),
-//                                                                        Pair.<String, String>pair("method", request.method())));
     }
 }
