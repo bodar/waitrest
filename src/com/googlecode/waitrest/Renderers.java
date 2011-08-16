@@ -1,16 +1,22 @@
 package com.googlecode.waitrest;
 
 import com.googlecode.funclate.Model;
+import com.googlecode.funclate.stringtemplate.EnhancedStringTemplateGroup;
 import com.googlecode.totallylazy.Callable1;
 import com.googlecode.totallylazy.Callable2;
 import com.googlecode.totallylazy.Strings;
 import com.googlecode.utterlyidle.Renderer;
 import com.googlecode.utterlyidle.Request;
 import com.googlecode.utterlyidle.Response;
+import org.antlr.stringtemplate.StringTemplate;
+import org.antlr.stringtemplate.StringTemplateGroup;
 
+import java.net.URL;
 import java.util.Map;
 
 import static com.googlecode.totallylazy.Sequences.sequence;
+import static com.googlecode.totallylazy.URLs.packageUrl;
+import static com.googlecode.totallylazy.URLs.url;
 import static java.lang.String.format;
 
 public class Renderers {
@@ -36,6 +42,18 @@ public class Renderers {
             public String render(Model model) throws Exception {
                 String fileContent = Strings.toString(getClass().getResourceAsStream(file));
                 return removeUnusedPlaceholders(sequence(model.entries()).fold(fileContent, replacePlaceholder()));
+            }
+        };
+    }
+
+    public static Renderer<Model> stringTemplateRenderer(final String file) {
+        return new Renderer<Model>() {
+            @Override
+            public String render(Model model) throws Exception {
+                URL url = packageUrl(Renderers.class);
+                StringTemplateGroup group = new EnhancedStringTemplateGroup(url);
+                StringTemplate template = group.getInstanceOf(file, model.toMap());
+                return template.toString();
             }
         };
     }
