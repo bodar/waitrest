@@ -2,7 +2,10 @@ package com.googlecode.waitrest;
 
 import com.googlecode.totallylazy.Callable1;
 import com.googlecode.totallylazy.Option;
-import com.googlecode.utterlyidle.*;
+import com.googlecode.utterlyidle.Request;
+import com.googlecode.utterlyidle.Requests;
+import com.googlecode.utterlyidle.Response;
+import com.googlecode.utterlyidle.Responses;
 import com.googlecode.utterlyidle.annotations.HttpMethod;
 
 import java.util.HashMap;
