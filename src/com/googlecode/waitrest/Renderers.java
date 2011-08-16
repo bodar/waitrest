@@ -1,5 +1,6 @@
 package com.googlecode.waitrest;
 
+import com.googlecode.funclate.Model;
 import com.googlecode.totallylazy.Callable1;
 import com.googlecode.totallylazy.Callable2;
 import com.googlecode.totallylazy.Strings;
@@ -30,11 +31,11 @@ public class Renderers {
         };
     }
 
-    public static Renderer<Map<String, String>> fileRenderer(final String file) {
-        return new Renderer<Map<String, String>>() {
-            public String render(Map<String, String> model) throws Exception {
+    public static Renderer<Model> fileRenderer(final String file) {
+        return new Renderer<Model>() {
+            public String render(Model model) throws Exception {
                 String fileContent = Strings.toString(getClass().getResourceAsStream(file));
-                return removeUnusedPlaceholders(sequence(model.entrySet()).fold(fileContent, replacePlaceholder()));
+                return removeUnusedPlaceholders(sequence(model.entries()).fold(fileContent, replacePlaceholder()));
             }
         };
     }
@@ -43,11 +44,11 @@ public class Renderers {
         return content.replaceAll(format("\\$\\{.*\\}"), "");
     }
 
-    private static Callable2<String, Map.Entry<String, String>, String> replacePlaceholder() {
-        return new Callable2<String, Map.Entry<String, String>, String>() {
+    private static Callable2<String, Map.Entry<String, Object>, String> replacePlaceholder() {
+        return new Callable2<String, Map.Entry<String, Object>, String>() {
             @Override
-            public String call(String response, Map.Entry<String, String> modelEntry) throws Exception {
-                return response.replaceAll(format("\\$\\{%s\\}", modelEntry.getKey()), modelEntry.getValue());
+            public String call(String response, Map.Entry<String, Object> modelEntry) throws Exception {
+                return response.replaceAll(format("\\$\\{%s\\}", modelEntry.getKey()), (String) modelEntry.getValue());
             }
         };
     }
