@@ -19,9 +19,11 @@ import static com.googlecode.utterlyidle.Responses.status;
 import static com.googlecode.utterlyidle.Status.BAD_REQUEST;
 import static com.googlecode.utterlyidle.Status.CREATED;
 import static com.googlecode.utterlyidle.annotations.AnnotatedBindings.annotatedClass;
+import static com.googlecode.utterlyidle.annotations.HttpMethod.*;
 import static com.googlecode.utterlyidle.handlers.RenderingResponseHandler.renderer;
 import static com.googlecode.waitrest.Predicates.path;
 import static com.googlecode.waitrest.Renderers.fileRenderer;
+import static com.googlecode.waitrest.Renderers.stringTemplateRenderer;
 import static com.googlecode.waitrest.Renderers.textRenderer;
 import static com.googlecode.waitrest.Waitress.WAITRESS_ORDERS_PATH;
 import static com.googlecode.waitrest.Waitress.WAITRESS_ORDER_PATH;
@@ -42,11 +44,12 @@ public class Manager implements ResourcesModule, ApplicationScopedModule, Respon
 
     @Override
     public Module addResponseHandlers(ResponseHandlers handlers) {
-        handlers.add(method(HttpMethod.GET).and(path(WAITRESS_ORDER_PATH)), renderer(fileRenderer("menu.html")));
-        handlers.add(method(HttpMethod.GET).and(path(WAITRESS_ORDERS_PATH)), renderer(textRenderer()));
-        handlers.add(method(HttpMethod.POST).and(path(WAITRESS_ORDER_PATH)).and(status(BAD_REQUEST)), renderer(fileRenderer("menu.html")));
-        handlers.add(method(HttpMethod.POST).and(path(WAITRESS_ORDER_PATH)).and(status(CREATED)).and(modelContainsHttpMethod(HttpMethod.GET)), renderer(fileRenderer("get.html")));
-        handlers.add(method(HttpMethod.POST).and(path(WAITRESS_ORDER_PATH)).and(status(CREATED)), renderer(fileRenderer("notGet.html")));
+        handlers.add(method(GET).and(path(WAITRESS_ORDER_PATH)), renderer(fileRenderer("menu.html")));
+        handlers.add(method(GET).and(path(WAITRESS_ORDERS_PATH)), renderer(textRenderer()));
+        handlers.add(method(POST).and(path(WAITRESS_ORDER_PATH)).and(status(BAD_REQUEST)), renderer(fileRenderer("menu.html")));
+        handlers.add(method(POST).and(path(WAITRESS_ORDER_PATH)).and(status(CREATED)).and(modelContainsHttpMethod(GET)), renderer(fileRenderer("get.html")));
+        handlers.add(method(POST).and(path(WAITRESS_ORDER_PATH)).and(status(CREATED)).and(modelContainsHttpMethod(POST)), renderer(stringTemplateRenderer("post")));
+        handlers.add(method(POST).and(path(WAITRESS_ORDER_PATH)).and(status(CREATED)), renderer(fileRenderer("notGetOrPost.html")));
         return this;
     }
 
