@@ -2,15 +2,22 @@ package com.googlecode.waitrest;
 
 
 import com.googlecode.funclate.Model;
+import com.googlecode.totallylazy.Callable1;
+import com.googlecode.totallylazy.Pair;
+import com.googlecode.totallylazy.Sequence;
 import com.googlecode.utterlyidle.HttpMessageParser;
 import com.googlecode.utterlyidle.Request;
 import com.googlecode.utterlyidle.Response;
 import com.googlecode.utterlyidle.Status;
 import com.googlecode.utterlyidle.annotations.*;
 
+import java.util.Iterator;
 import java.util.Map;
 
 import static com.googlecode.funclate.Model.model;
+import static com.googlecode.totallylazy.Callables.first;
+import static com.googlecode.totallylazy.Sequences.memorise;
+import static com.googlecode.totallylazy.Sequences.sequence;
 import static com.googlecode.utterlyidle.HttpHeaders.LOCATION;
 import static com.googlecode.utterlyidle.Responses.response;
 import static com.googlecode.utterlyidle.Status.CREATED;
@@ -96,8 +103,13 @@ public class Waitress {
     }
 
     private Response created(Request request) {
-        return response(CREATED).header(LOCATION, request.url().toString()).entity(model().
-                                                                                add("url", request.url().toString()).
-                                                                                add("method", request.method()));
+        Model model = model().
+                add("url", request.url().toString()).
+                add("method", request.method());
+        if(request.method().equalsIgnoreCase(HttpMethod.POST)) model.add("formParameters", sequence(request.form()).map(first(String.class)).toList());
+
+        return response(CREATED).header(LOCATION, request.url().toString()).entity(model);
     }
+
+
 }
