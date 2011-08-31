@@ -5,10 +5,7 @@ import com.googlecode.funclate.Model;
 import com.googlecode.totallylazy.Callable1;
 import com.googlecode.totallylazy.Pair;
 import com.googlecode.totallylazy.Sequence;
-import com.googlecode.utterlyidle.HttpMessageParser;
-import com.googlecode.utterlyidle.Request;
-import com.googlecode.utterlyidle.Response;
-import com.googlecode.utterlyidle.Status;
+import com.googlecode.utterlyidle.*;
 import com.googlecode.utterlyidle.annotations.*;
 
 import java.util.Iterator;
@@ -27,8 +24,8 @@ import static com.googlecode.utterlyidle.proxy.Resource.resource;
 
 public class Waitress {
 
-    public static final String WAITRESS_ORDER_PATH = "/waitrest/order";
-    public static final String WAITRESS_ORDERS_PATH = "/waitrest/orders";
+    public static final String WAITRESS_ORDER_PATH = "waitrest/order";
+    public static final String WAITRESS_ORDERS_PATH = "waitrest/orders";
     private static final String ANY_PATH = "{path:^(?!waitrest/order|waitrest/orders).*}";
 
     private Kitchen kitchen;
@@ -49,7 +46,7 @@ public class Waitress {
     @Priority(Priority.High)
     @Produces("text/html")
     public Model showMenu() {
-        return model().add("orderUrl", WAITRESS_ORDER_PATH).add("ordersUrl", WAITRESS_ORDERS_PATH);
+        return model().add("orderUrl", absolute(WAITRESS_ORDER_PATH)).add("ordersUrl", absolute(WAITRESS_ORDERS_PATH));
     }
 
     @GET
@@ -81,8 +78,8 @@ public class Waitress {
         } catch (IllegalArgumentException e) {
             return response(Status.BAD_REQUEST).entity(model().
                                                         add("error", e.getMessage()).
-                                                        add("orderUrl", WAITRESS_ORDER_PATH).
-                                                        add("ordersUrl", WAITRESS_ORDERS_PATH).
+                                                        add("orderUrl", absolute(WAITRESS_ORDER_PATH)).
+                                                        add("ordersUrl", absolute(WAITRESS_ORDERS_PATH)).
                                                         add("request", req).
                                                         add("response", resp));
         }
@@ -102,13 +99,17 @@ public class Waitress {
         return created(request);
     }
 
+    private String absolute(String path) {
+        return path.startsWith("/") ? path : "/"+path;
+    }
+
     private Response created(Request request) {
         Model model = model().
-                add("url", request.url().toString()).
+                add("url", request.uri().toString()).
                 add("method", request.method());
-        if(request.method().equalsIgnoreCase(HttpMethod.POST)) model.add("formParameters", sequence(request.form()).map(first(String.class)).toList());
+        if(request.method().equalsIgnoreCase(HttpMethod.POST)) model.add("formParameters", sequence(Requests.form(request)).map(first(String.class)).toList());
 
-        return response(CREATED).header(LOCATION, request.url().toString()).entity(model);
+        return response(CREATED).header(LOCATION, request.uri().toString()).entity(model);
     }
 
 
