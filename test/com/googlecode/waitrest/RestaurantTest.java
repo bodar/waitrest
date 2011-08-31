@@ -39,7 +39,7 @@ public class RestaurantTest {
 
     @Test
     public void serveRequestOrder() throws Exception {
-        String cheeseUrl = server.getUrl() + "cheese";
+        String cheeseUrl = server.uri() + "cheese";
         Request put = put(cheeseUrl).withQuery("type", "cheddar").withHeader(CONTENT_TYPE, TEXT_PLAIN).withHeader(CONTENT_LENGTH, "6").withInput("cheese".getBytes()).build();
         Request get = get(cheeseUrl).withQuery("type", "cheddar").build();
         Request unknownGet = get(cheeseUrl).withQuery("type", "gouda").build();
@@ -53,12 +53,12 @@ public class RestaurantTest {
 
     @Test
     public void serveRequestResponseOrder_get() throws Exception {
-        String cheeseUrl = server.getUrl() + "cheese";
+        String cheeseUrl = server.uri() + "cheese";
         Request request = get(cheeseUrl).withQuery("type", "cheddar").build();
         Request unknownRequest = get(cheeseUrl).withQuery("type", "gouda").build();
         Response expectedResponse = response(OK).bytes("cheese".getBytes()).header(CONTENT_TYPE, TEXT_PLAIN).header(CONTENT_LENGTH, "6");
 
-        restClient.handle(post(server.getUrl() + Waitress.WAITRESS_ORDER_PATH).withForm("request", request.toString()).withForm("response", expectedResponse.toString()).build());
+        restClient.handle(post(server.uri() + Waitress.WAITRESS_ORDER_PATH).withForm("request", request.toString()).withForm("response", expectedResponse.toString()).build());
 
         assertThat(restClient.handle(request), is(expectedResponse));
         assertThat(restClient.handle(unknownRequest).status(), is(Status.NOT_FOUND));
@@ -66,13 +66,13 @@ public class RestaurantTest {
 
     @Test
     public void serveRequestResponseOrder_post() throws Exception {
-        String cheeseUrl = server.getUrl() + "cheese";
+        String cheeseUrl = server.uri() + "cheese";
         Request request = post(cheeseUrl).withForm("type", "cheddar").build();
         System.out.println("request = " + request);
         Request unknownRequest = post(cheeseUrl).withForm("type", "gouda").build();
         Response expectedResponse = response(OK).bytes("cheese".getBytes()).header(CONTENT_TYPE, TEXT_PLAIN).header(CONTENT_LENGTH, "6");
 
-        restClient.handle(post(server.getUrl() + Waitress.WAITRESS_ORDER_PATH).withForm("request", request.toString()).withForm("response", expectedResponse.toString()).build());
+        restClient.handle(post(server.uri() + Waitress.WAITRESS_ORDER_PATH).withForm("request", request.toString()).withForm("response", expectedResponse.toString()).build());
 
         assertThat(restClient.handle(request), is(expectedResponse));
         assertThat(restClient.handle(unknownRequest).status(), is(Status.NOT_FOUND));
@@ -80,7 +80,7 @@ public class RestaurantTest {
 
     @Test
     public void cannotTakeInvalidOrder() throws Exception {
-        Response response = restClient.handle(post(server.getUrl() + Waitress.WAITRESS_ORDER_PATH).
+        Response response = restClient.handle(post(server.uri() + Waitress.WAITRESS_ORDER_PATH).
                 withForm("request", "/pathWithNoHttpMethod HTTP/1.1").
                 withForm("response", response(NO_CONTENT).toString()).build());
 

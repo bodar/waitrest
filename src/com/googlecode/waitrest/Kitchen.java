@@ -7,6 +7,7 @@ import com.googlecode.utterlyidle.Requests;
 import com.googlecode.utterlyidle.Response;
 import com.googlecode.utterlyidle.Responses;
 import com.googlecode.utterlyidle.annotations.HttpMethod;
+import com.googlecode.utterlyidle.io.HierarchicalPath;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,9 +31,9 @@ public class Kitchen {
 
     public Option<Response> serve(Request request) {
         return sequence(orders.keySet()).
-                filter(where(Requests.path(), is(request.url().path()))).
-                filter(where(Requests.form(), subsetOf(request.form()))).
-                filter(where(Requests.query(), subsetOf(request.query()))).
+                filter(where(Requests.path(), is(HierarchicalPath.hierarchicalPath(request.uri().path())))).
+                filter(where(Requests.form(), subsetOf(Requests.form(request)))).
+                filter(where(Requests.query(), subsetOf(Requests.query(request)))).
                 filter(where(Requests.method(), or(is(request.method()), is(HttpMethod.PUT)))).
                 headOption().
                 map(response());
