@@ -13,6 +13,7 @@
             color: red;
             display: block;
         }
+
         div {
             background-color: #FAFAFA;
             border: 1px solid #BBBBBB;
@@ -23,8 +24,11 @@
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js" type="text/javascript"></script>
     <script type="text/javascript">
         $(document).ready(function () {
-            $("textarea:empty").each(function() {
-                $(this).attr("value", $(this).attr("placeholder"));
+            $(".sample").click(function() {
+                $("textarea:empty").each(function() {
+                    $(this).attr("value", $(this).attr("placeholder"));
+                });
+                return false;
             });
         });
     </script>
@@ -36,8 +40,9 @@
         <label>Request</label>
         <textarea name="request" placeholder="GET /cheese HTTP/1.1">${request}</textarea>
         <label>Response</label>
-        <textarea name="response" placeholder="HTTP/1.1 200 OK&#13;&#10;Content-Length: 5&#13;&#10;&#13;&#10;gouda">${response}</textarea>
+        <textarea name="response" placeholder="HTTP/1.1 200 OK&#13;&#10;Content-Type: text/plain&#13;&#10;&#13;&#10;gouda">${response}</textarea>
         <input type="submit" value="Take order"/>
+        <a href="#" class="sample">Sample request/response</a>
     </form>
 </div>
 <div>
