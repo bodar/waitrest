@@ -4,19 +4,26 @@ package com.googlecode.waitrest;
 import com.googlecode.funclate.Model;
 import com.googlecode.totallylazy.Callable1;
 import com.googlecode.totallylazy.Callables;
-import com.googlecode.totallylazy.Pair;
 import com.googlecode.totallylazy.Sequence;
-import com.googlecode.totallylazy.Strings;
-import com.googlecode.utterlyidle.*;
-import com.googlecode.utterlyidle.annotations.*;
-import com.googlecode.utterlyidle.io.HierarchicalPath;
+import com.googlecode.totallylazy.Uri;
+import com.googlecode.utterlyidle.HttpMessageParser;
+import com.googlecode.utterlyidle.Request;
+import com.googlecode.utterlyidle.Requests;
+import com.googlecode.utterlyidle.Response;
+import com.googlecode.utterlyidle.Status;
+import com.googlecode.utterlyidle.annotations.FormParam;
+import com.googlecode.utterlyidle.annotations.GET;
+import com.googlecode.utterlyidle.annotations.HttpMethod;
+import com.googlecode.utterlyidle.annotations.POST;
+import com.googlecode.utterlyidle.annotations.PUT;
+import com.googlecode.utterlyidle.annotations.Path;
+import com.googlecode.utterlyidle.annotations.Priority;
+import com.googlecode.utterlyidle.annotations.Produces;
 
-import java.util.Iterator;
 import java.util.Map;
 
 import static com.googlecode.funclate.Model.model;
 import static com.googlecode.totallylazy.Callables.first;
-import static com.googlecode.totallylazy.Sequences.memorise;
 import static com.googlecode.totallylazy.Sequences.sequence;
 import static com.googlecode.utterlyidle.HttpHeaders.LOCATION;
 import static com.googlecode.utterlyidle.Responses.response;
@@ -66,8 +73,25 @@ public class Waitress {
     @Produces("text/html")
     @Priority(Priority.High)
     public Response allGetOrders() {
-        Sequence<String> paths = sequence(kitchen.allOrders(HttpMethod.GET).keySet()).map(Requests.path()).map(Callables.<HierarchicalPath>asString());
-        return response(Status.OK).entity(model().add("paths", paths.toList()));
+        Sequence<String> urls = sequence(kitchen.allOrders(HttpMethod.GET).keySet()).map(uri()).map(Callables.<Uri>asString());
+        return response(Status.OK).entity(model().add("urls", urls.toList()));
+    }
+
+    public static Callable1<Request, Uri> uri() {
+        return new Callable1<Request, Uri>() {
+            public Uri call(Request request) throws Exception {
+                return request.uri();
+            }
+        };
+    }
+
+    private Callable1<? super Request, String> urls() {
+        return new Callable1<Request, String>() {
+            @Override
+            public String call(Request request) throws Exception {
+                return request.uri().toString();
+            }
+        };
     }
 
     @GET
@@ -90,12 +114,12 @@ public class Waitress {
             return created(request);
         } catch (IllegalArgumentException e) {
             return response(Status.BAD_REQUEST).entity(model().
-                                                        add("error", e.getMessage()).
-                                                        add("orderUrl", absolute(WAITRESS_ORDER_PATH)).
-                                                        add("ordersUrl", absolute(WAITRESS_ORDERS_PATH)).
-                                                        add("getOrdersUrl", absolute(WAITRESS_GET_ORDERS_PATH)).
-                                                        add("request", req).
-                                                        add("response", resp));
+                    add("error", e.getMessage()).
+                    add("orderUrl", absolute(WAITRESS_ORDER_PATH)).
+                    add("ordersUrl", absolute(WAITRESS_ORDERS_PATH)).
+                    add("getOrdersUrl", absolute(WAITRESS_GET_ORDERS_PATH)).
+                    add("request", req).
+                    add("response", resp));
         }
     }
 
@@ -114,14 +138,15 @@ public class Waitress {
     }
 
     private String absolute(String path) {
-        return path.startsWith("/") ? path : "/"+path;
+        return path.startsWith("/") ? path : "/" + path;
     }
 
     private Response created(Request request) {
         Model model = model().
                 add("url", request.uri().toString()).
                 add("method", request.method());
-        if(request.method().equalsIgnoreCase(HttpMethod.POST)) model.add("formParameters", sequence(Requests.form(request)).map(first(String.class)).toList());
+        if (request.method().equalsIgnoreCase(HttpMethod.POST))
+            model.add("formParameters", sequence(Requests.form(request)).map(first(String.class)).toList());
 
         return response(CREATED).header(LOCATION, request.uri().toString()).entity(model);
     }

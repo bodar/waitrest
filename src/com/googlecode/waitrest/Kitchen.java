@@ -38,7 +38,7 @@ public class Kitchen {
         return sequence(orders.keySet()).
                 filter(where(Requests.path(), is(HierarchicalPath.hierarchicalPath(request.uri().path())))).
                 filter(where(Requests.form(), subsetOf(Requests.form(request)))).
-                filter(where(Requests.query(), subsetOf(Requests.query(request)))).
+                filter(where(Requests.query(), is(Requests.query(request)))).
                 filter(where(Requests.method(), or(is(request.method()), is(HttpMethod.PUT)))).
                 headOption().
                 map(response());

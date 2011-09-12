@@ -4,9 +4,9 @@
     </head>
     <body>
         <ul>
-            $paths: { path |
+            $urls: { url |
                 <li>
-                    <a href='$path$'>$path$</a>
+                    <a href='$url$'>$url$</a>
                 </li>
             }$
         </ul>
