@@ -3,10 +3,13 @@ package com.googlecode.waitrest;
 
 import com.googlecode.funclate.Model;
 import com.googlecode.totallylazy.Callable1;
+import com.googlecode.totallylazy.Callables;
 import com.googlecode.totallylazy.Pair;
 import com.googlecode.totallylazy.Sequence;
+import com.googlecode.totallylazy.Strings;
 import com.googlecode.utterlyidle.*;
 import com.googlecode.utterlyidle.annotations.*;
+import com.googlecode.utterlyidle.io.HierarchicalPath;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -26,7 +29,8 @@ public class Waitress {
 
     public static final String WAITRESS_ORDER_PATH = "waitrest/order";
     public static final String WAITRESS_ORDERS_PATH = "waitrest/orders";
-    private static final String ANY_PATH = "{path:^(?!waitrest/order|waitrest/orders).*}";
+    public static final String WAITRESS_GET_ORDERS_PATH = "waitrest/orders/get";
+    private static final String ANY_PATH = "{path:^(?!waitrest/order|waitrest/orders|waitrest/orders/get).*}";
 
     private Kitchen kitchen;
 
@@ -46,7 +50,7 @@ public class Waitress {
     @Priority(Priority.High)
     @Produces("text/html")
     public Model showMenu() {
-        return model().add("orderUrl", absolute(WAITRESS_ORDER_PATH)).add("ordersUrl", absolute(WAITRESS_ORDERS_PATH));
+        return model().add("orderUrl", absolute(WAITRESS_ORDER_PATH)).add("ordersUrl", absolute(WAITRESS_ORDERS_PATH)).add("getOrdersUrl", absolute(WAITRESS_GET_ORDERS_PATH));
     }
 
     @GET
@@ -55,6 +59,15 @@ public class Waitress {
     @Priority(Priority.High)
     public Map<Request, Response> allOrders() {
         return kitchen.allOrders();
+    }
+
+    @GET
+    @Path(WAITRESS_GET_ORDERS_PATH)
+    @Produces("text/html")
+    @Priority(Priority.High)
+    public Response allGetOrders() {
+        Sequence<String> paths = sequence(kitchen.allOrders(HttpMethod.GET).keySet()).map(Requests.path()).map(Callables.<HierarchicalPath>asString());
+        return response(Status.OK).entity(model().add("paths", paths.toList()));
     }
 
     @GET
@@ -80,6 +93,7 @@ public class Waitress {
                                                         add("error", e.getMessage()).
                                                         add("orderUrl", absolute(WAITRESS_ORDER_PATH)).
                                                         add("ordersUrl", absolute(WAITRESS_ORDERS_PATH)).
+                                                        add("getOrdersUrl", absolute(WAITRESS_GET_ORDERS_PATH)).
                                                         add("request", req).
                                                         add("response", resp));
         }
