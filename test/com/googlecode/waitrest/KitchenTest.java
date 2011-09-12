@@ -2,6 +2,7 @@ package com.googlecode.waitrest;
 
 import com.googlecode.totallylazy.Option;
 import com.googlecode.utterlyidle.Response;
+import com.googlecode.utterlyidle.Status;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matchers;
 import org.junit.Test;
@@ -50,9 +51,9 @@ public class KitchenTest {
     }
 
     @Test
-    public void ignoreExtraQueryParams() {
+    public void doNotIgnoreExtraQueryParams() {
         kitchen.receiveOrder(get("/test").build(), response(OK).entity("test entity"));
-        assertThat(kitchen.serve(get("/test?param=ignore").build()).get(), is(response(OK).entity("test entity")));
+        assertThat(kitchen.serve(get("/test?param=doNotIgnore").build()).isEmpty(), is(true));
     }
 
     @Test
@@ -79,7 +80,7 @@ public class KitchenTest {
     public void serveOrderWithMatchingQueryParams() {
         kitchen.receiveOrder(put("/foo?bar=dan").withInput("dan".getBytes()).build());
         kitchen.receiveOrder(put("/foo?bar=tom").withInput("tom".getBytes()).build());
-        Response response = kitchen.serve(get("/foo?ignore=me&bar=tom").build()).get();
+        Response response = kitchen.serve(get("/foo?bar=tom").build()).get();
         assertThat(new String(response.bytes()), Matchers.is("tom"));
     }
 
