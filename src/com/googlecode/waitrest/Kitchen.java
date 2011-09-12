@@ -1,7 +1,10 @@
 package com.googlecode.waitrest;
 
 import com.googlecode.totallylazy.Callable1;
+import com.googlecode.totallylazy.Maps;
 import com.googlecode.totallylazy.Option;
+import com.googlecode.totallylazy.Pair;
+import com.googlecode.totallylazy.Predicate;
 import com.googlecode.utterlyidle.Request;
 import com.googlecode.utterlyidle.Requests;
 import com.googlecode.utterlyidle.Response;
@@ -12,7 +15,9 @@ import com.googlecode.utterlyidle.io.HierarchicalPath;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.googlecode.totallylazy.Maps.pairs;
 import static com.googlecode.totallylazy.Predicates.*;
+import static com.googlecode.totallylazy.Sequences.first;
 import static com.googlecode.totallylazy.Sequences.sequence;
 import static com.googlecode.utterlyidle.HttpHeaders.CONTENT_TYPE;
 
@@ -39,8 +44,21 @@ public class Kitchen {
                 map(response());
     }
 
+    public Map<Request, Response> allOrders(String orderType) {
+        return Maps.map(pairs(orders).filter(orderType(orderType)));
+    }
+
     public Map<Request, Response> allOrders() {
         return orders;
+    }
+
+    private Predicate<? super Pair<Request, Response>> orderType(final String orderType) {
+        return new Predicate<Pair<Request, Response>>() {
+            @Override
+            public boolean matches(Pair<Request, Response> requestResponsePair) {
+                return requestResponsePair.first().method().equals(orderType);
+            }
+        };
     }
 
 
