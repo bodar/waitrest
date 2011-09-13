@@ -16,8 +16,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.googlecode.totallylazy.Maps.pairs;
-import static com.googlecode.totallylazy.Predicates.*;
-import static com.googlecode.totallylazy.Sequences.first;
+import static com.googlecode.totallylazy.Predicates.is;
+import static com.googlecode.totallylazy.Predicates.or;
+import static com.googlecode.totallylazy.Predicates.subsetOf;
+import static com.googlecode.totallylazy.Predicates.where;
 import static com.googlecode.totallylazy.Sequences.sequence;
 import static com.googlecode.utterlyidle.HttpHeaders.CONTENT_TYPE;
 
