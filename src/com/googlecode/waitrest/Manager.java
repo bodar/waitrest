@@ -48,10 +48,20 @@ public class Manager implements ResourcesModule, ApplicationScopedModule, Respon
         handlers.add(method(GET).and(path(WAITRESS_GET_ORDERS_PATH)), renderer(stringTemplateRenderer("gets")));
         handlers.add(method(GET).and(path(WAITRESS_ORDERS_PATH)), renderer(stringTemplateRenderer("all")));
         handlers.add(method(POST).and(path(WAITRESS_ORDER_PATH)).and(status(BAD_REQUEST)), renderer(fileRenderer("menu.html")));
+        handlers.add(method(POST).and(path(WAITRESS_ORDER_PATH)).and(status(CREATED).and(modelContains("message"))), renderer(fileRenderer("menu.html")));
         handlers.add(method(POST).and(path(WAITRESS_ORDER_PATH)).and(status(CREATED)).and(modelContainsHttpMethod(GET)), renderer(fileRenderer("get.html")));
         handlers.add(method(POST).and(path(WAITRESS_ORDER_PATH)).and(status(CREATED)).and(modelContainsHttpMethod(POST)), renderer(stringTemplateRenderer("post")));
         handlers.add(method(POST).and(path(WAITRESS_ORDER_PATH)).and(status(CREATED)), renderer(fileRenderer("notGetOrPost.html")));
         return this;
+    }
+
+    private Predicate<? super Pair<Request, Response>> modelContains(final String key) {
+        return new Predicate<Pair<Request, Response>>() {
+            @Override
+            public boolean matches(Pair<Request, Response> requestResponsePair) {
+                return ((Model) requestResponsePair.second().entity()).contains(key);
+            }
+        };
     }
 
     private Predicate<Pair<Request, Response>> modelContainsHttpMethod(final String httpMethod) {

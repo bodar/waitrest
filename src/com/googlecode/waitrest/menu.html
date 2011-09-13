@@ -14,6 +14,11 @@
             display: block;
         }
 
+        .message {
+            color: blue;
+            display: block;
+        }
+
         div {
             background-color: #FAFAFA;
             border: 1px solid #BBBBBB;
@@ -24,9 +29,10 @@
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js" type="text/javascript"></script>
     <script type="text/javascript">
         $(document).ready(function () {
-            sampleData("textarea:empty", ".sampleGET", "data-get");
-            sampleData("textarea:empty", ".samplePOST", "data-post");
-            sampleData("textarea:empty", ".samplePOSTWithParams", "data-postParams");
+            sampleData("textarea", ".sampleGET", "data-get");
+            sampleData("textarea", ".samplePOST", "data-post");
+            sampleData("textarea", ".samplePOSTWithParams", "data-postParams");
+            reset(".reset", "textarea");
         });
 
         function sampleData(input, populateTrigger, dataSourceAttr) {
@@ -37,11 +43,19 @@
                 return false;
             });
         }
+
+        function reset(resetTrigger, input) {
+            $(resetTrigger).click(function() {
+                $(input).val("");
+                return false;
+            });
+        }
     </script>
 </head>
 <body>
 <div>
     <form action="${orderUrl}" method="post">
+        <span class="message">${message}</span>
         <span class="error">${error}</span>
         <label>Request</label>
         <textarea name="request"
@@ -53,11 +67,12 @@
                   data-get="HTTP/1.1 200 OK&#13;&#10;Content-Type: text/plain&#13;&#10;&#13;&#10;GET gouda"
                   data-postParams="HTTP/1.1 200 OK&#13;&#10;Content-Type: text/plain&#13;&#10;&#13;&#10;POST gouda with param"
                   data-post="HTTP/1.1 200 OK&#13;&#10;Content-Type: text/plain&#13;&#10;&#13;&#10;POST gouda">${response}</textarea>
-        <input type="submit" value="Take order"/>
+        <input type="submit" name="action" value="Take order"/>
+        <input type="submit" name="action" value="Take quick order"/>
         <a href="" class="sampleGET">Sample GET</a> |
         <a href="" class="samplePOST">Sample POST</a> | 
         <a href="" class="samplePOSTWithParams">Sample POST With Params</a> |
-        <input type="reset" value="Empty order"/>
+        <input type="reset" class="reset" value="Empty order"/>
     </form>
 </div>
 <div>
