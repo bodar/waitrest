@@ -20,8 +20,6 @@ import com.googlecode.utterlyidle.annotations.Path;
 import com.googlecode.utterlyidle.annotations.Priority;
 import com.googlecode.utterlyidle.annotations.Produces;
 
-import java.util.Map;
-
 import static com.googlecode.funclate.Model.model;
 import static com.googlecode.totallylazy.Callables.first;
 import static com.googlecode.totallylazy.Sequences.sequence;
@@ -64,8 +62,8 @@ public class Waitress {
     @Path(WAITRESS_ORDERS_PATH)
     @Produces("text/plain")
     @Priority(Priority.High)
-    public Map<Request, Response> allOrders() {
-        return kitchen.allOrders();
+    public Response allOrders() {
+        return response(Status.OK).entity(model().add("orders", kitchen.allOrders()));
     }
 
     @GET
@@ -75,23 +73,6 @@ public class Waitress {
     public Response allGetOrders() {
         Sequence<String> urls = sequence(kitchen.allOrders(HttpMethod.GET).keySet()).map(uri()).map(Callables.<Uri>asString());
         return response(Status.OK).entity(model().add("urls", urls.toList()));
-    }
-
-    public static Callable1<Request, Uri> uri() {
-        return new Callable1<Request, Uri>() {
-            public Uri call(Request request) throws Exception {
-                return request.uri();
-            }
-        };
-    }
-
-    private Callable1<? super Request, String> urls() {
-        return new Callable1<Request, String>() {
-            @Override
-            public String call(Request request) throws Exception {
-                return request.uri().toString();
-            }
-        };
     }
 
     @GET
@@ -135,6 +116,14 @@ public class Waitress {
     public Response takeOrder(Request request) {
         kitchen.receiveOrder(request);
         return created(request);
+    }
+
+    public static Callable1<Request, Uri> uri() {
+        return new Callable1<Request, Uri>() {
+            public Uri call(Request request) throws Exception {
+                return request.uri();
+            }
+        };
     }
 
     private String absolute(String path) {

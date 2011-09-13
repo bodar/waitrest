@@ -2,14 +2,15 @@ package com.googlecode.waitrest;
 
 import com.googlecode.totallylazy.Option;
 import com.googlecode.utterlyidle.Response;
-import com.googlecode.utterlyidle.Status;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 
 import static com.googlecode.totallylazy.Option.none;
 import static com.googlecode.utterlyidle.HttpHeaders.CONTENT_TYPE;
-import static com.googlecode.utterlyidle.RequestBuilder.*;
+import static com.googlecode.utterlyidle.RequestBuilder.get;
+import static com.googlecode.utterlyidle.RequestBuilder.post;
+import static com.googlecode.utterlyidle.RequestBuilder.put;
 import static com.googlecode.utterlyidle.Responses.response;
 import static com.googlecode.utterlyidle.Status.NO_CONTENT;
 import static com.googlecode.utterlyidle.Status.OK;
