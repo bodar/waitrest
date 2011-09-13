@@ -4,6 +4,7 @@ package com.googlecode.waitrest;
 import com.googlecode.funclate.Model;
 import com.googlecode.totallylazy.Callable1;
 import com.googlecode.totallylazy.Callables;
+import com.googlecode.totallylazy.Option;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.Uri;
 import com.googlecode.utterlyidle.HttpMessageParser;
@@ -86,12 +87,28 @@ public class Waitress {
     @Path(WAITRESS_ORDER_PATH)
     @Priority(Priority.High)
     public Response takeOrder(@FormParam("request") String req, @FormParam("response") String resp) {
+        return takeOrder(req, resp, Option.none(String.class));
+    }
+
+    @POST
+    @Path(WAITRESS_ORDER_PATH)
+    @Priority(Priority.High)
+    public Response takeOrder(@FormParam("request") String req, @FormParam("response") String resp, @FormParam("action") Option<String> action) {
         try {
             Request request = HttpMessageParser.parseRequest(req);
             Response response = HttpMessageParser.parseResponse(resp);
 
             kitchen.receiveOrder(request, response);
 
+            if (action.getOrElse("").contains("quick")) {
+                return response(Status.CREATED).entity(model().
+                        add("orderUrl", absolute(WAITRESS_ORDER_PATH)).
+                        add("ordersUrl", absolute(WAITRESS_ORDERS_PATH)).
+                        add("getOrdersUrl", absolute(WAITRESS_GET_ORDERS_PATH)).
+                        add("request", req).
+                        add("response", resp).
+                        add("message", "Quick order taken for "+request.method()+" "+request.uri()));
+            }
             return created(request);
         } catch (IllegalArgumentException e) {
             return response(Status.BAD_REQUEST).entity(model().
