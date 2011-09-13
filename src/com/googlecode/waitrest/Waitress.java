@@ -5,9 +5,10 @@ import com.googlecode.funclate.Model;
 import com.googlecode.totallylazy.Callable1;
 import com.googlecode.totallylazy.Callables;
 import com.googlecode.totallylazy.Option;
+import com.googlecode.totallylazy.Pair;
 import com.googlecode.totallylazy.Sequence;
+import com.googlecode.totallylazy.Strings;
 import com.googlecode.totallylazy.Uri;
-import com.googlecode.utterlyidle.HttpMessageParser;
 import com.googlecode.utterlyidle.Request;
 import com.googlecode.utterlyidle.Requests;
 import com.googlecode.utterlyidle.Response;
@@ -23,8 +24,12 @@ import com.googlecode.utterlyidle.annotations.Produces;
 
 import static com.googlecode.funclate.Model.model;
 import static com.googlecode.totallylazy.Callables.first;
+import static com.googlecode.totallylazy.Pair.pair;
+import static com.googlecode.totallylazy.Predicates.not;
 import static com.googlecode.totallylazy.Sequences.sequence;
 import static com.googlecode.utterlyidle.HttpHeaders.LOCATION;
+import static com.googlecode.utterlyidle.HttpMessageParser.parseRequest;
+import static com.googlecode.utterlyidle.HttpMessageParser.parseResponse;
 import static com.googlecode.utterlyidle.Responses.response;
 import static com.googlecode.utterlyidle.Status.CREATED;
 import static com.googlecode.utterlyidle.Status.NOT_FOUND;
@@ -33,10 +38,13 @@ import static com.googlecode.utterlyidle.proxy.Resource.resource;
 
 public class Waitress {
 
+    public static final String REQUEST_SEPARATOR = "---------- REQUEST ------------";
+    public static final String RESPONSE_SEPARATOR = "---------- RESPONSE -----------";
     public static final String WAITRESS_ORDER_PATH = "waitrest/order";
+    public static final String WAITRESS_IMPORT_PATH = "waitrest/import";
     public static final String WAITRESS_ORDERS_PATH = "waitrest/orders";
     public static final String WAITRESS_GET_ORDERS_PATH = "waitrest/orders/get";
-    private static final String ANY_PATH = "{path:^(?!waitrest/order|waitrest/orders|waitrest/orders/get).*}";
+    private static final String ANY_PATH = "{path:^(?!waitrest/order|waitrest/orders|waitrest/orders/get|waitrest/export|waitrest/import).*}";
 
     private Kitchen kitchen;
 
@@ -64,7 +72,17 @@ public class Waitress {
     @Produces("text/plain")
     @Priority(Priority.High)
     public Response allOrders() {
-        return response(Status.OK).entity(model().add("orders", kitchen.allOrders()));
+        return response(Status.OK).entity(model().add("orders", kitchen.allOrders()).add("requestSeparator", REQUEST_SEPARATOR).add("responseSeparator", RESPONSE_SEPARATOR));
+    }
+
+    @POST
+    @Path(WAITRESS_IMPORT_PATH)
+    @Produces("text/plain")
+    @Priority(Priority.High)
+    public String importOrders(@FormParam("orders") String orders) {
+        Sequence<String> messages = sequence(orders.split(REQUEST_SEPARATOR)).filter(not(Strings.empty()));
+        messages.forEach(takeOrder());
+        return messages.size()+" orders imported";
     }
 
     @GET
@@ -95,30 +113,26 @@ public class Waitress {
     @Priority(Priority.High)
     public Response takeOrder(@FormParam("request") String req, @FormParam("response") String resp, @FormParam("action") Option<String> action) {
         try {
-            Request request = HttpMessageParser.parseRequest(req);
-            Response response = HttpMessageParser.parseResponse(resp);
+            Request request = parseRequest(req);
+            Response response = parseResponse(resp);
 
             kitchen.receiveOrder(request, response);
 
             if (action.getOrElse("").contains("quick")) {
-                return response(Status.CREATED).entity(model().
-                        add("orderUrl", absolute(WAITRESS_ORDER_PATH)).
-                        add("ordersUrl", absolute(WAITRESS_ORDERS_PATH)).
-                        add("getOrdersUrl", absolute(WAITRESS_GET_ORDERS_PATH)).
-                        add("request", req).
-                        add("response", resp).
-                        add("message", "Quick order taken for "+request.method()+" "+request.uri()));
+                return response(Status.CREATED).entity(menuPageBaseModel(req, resp).add("message", "Quick order taken for " + request.method() + " " + request.uri()));
             }
             return created(request);
         } catch (IllegalArgumentException e) {
-            return response(Status.BAD_REQUEST).entity(model().
-                    add("error", e.getMessage()).
-                    add("orderUrl", absolute(WAITRESS_ORDER_PATH)).
-                    add("ordersUrl", absolute(WAITRESS_ORDERS_PATH)).
-                    add("getOrdersUrl", absolute(WAITRESS_GET_ORDERS_PATH)).
-                    add("request", req).
-                    add("response", resp));
+            return response(Status.BAD_REQUEST).entity(menuPageBaseModel(req, resp).add("error", e.getMessage()));
         }
+    }
+
+    private Model menuPageBaseModel(String req, String resp) {
+        return model().add("orderUrl", absolute(WAITRESS_ORDER_PATH)).
+                       add("ordersUrl", absolute(WAITRESS_ORDERS_PATH)).
+                       add("getOrdersUrl", absolute(WAITRESS_GET_ORDERS_PATH)).
+                       add("request", req).
+                       add("response", resp);
     }
 
     @POST
@@ -135,6 +149,17 @@ public class Waitress {
         return created(request);
     }
 
+    private Callable1<String, Void> takeOrder() {
+        return new Callable1<String, Void>() {
+            @Override
+            public Void call(String requestAndResponse) throws Exception {
+                Sequence<String> requestAndResponseSequence = sequence(requestAndResponse.trim().split(RESPONSE_SEPARATOR));
+                kitchen.receiveOrder(parseRequest(requestAndResponseSequence.first().trim()), parseResponse(requestAndResponseSequence.second().trim()));
+                return null;
+            }
+        };
+    }
+
     public static Callable1<Request, Uri> uri() {
         return new Callable1<Request, Uri>() {
             public Uri call(Request request) throws Exception {
@@ -145,6 +170,15 @@ public class Waitress {
 
     private String absolute(String path) {
         return path.startsWith("/") ? path : "/" + path;
+    }
+
+    private Callable1<? super Pair<Request, Response>, Pair<String, String>> asJsonString() {
+        return new Callable1<Pair<Request, Response>, Pair<String, String>>() {
+            @Override
+            public Pair<String, String> call(Pair<Request, Response> requestResponsePair) throws Exception {
+                return pair((requestResponsePair.first().toString()), requestResponsePair.second().toString());
+            }
+        };
     }
 
     private Response created(Request request) {

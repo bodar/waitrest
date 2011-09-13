@@ -9,6 +9,11 @@
             width: 500px;
         }
 
+        .import {
+            height: 400px;
+            width: 1200px;
+        }
+
         .error {
             color: red;
             display: block;
@@ -54,7 +59,7 @@
 </head>
 <body>
 <div>
-    <form action="${orderUrl}" method="post">
+    <form action="${orderUrl}" method="POST">
         <span class="message">${message}</span>
         <span class="error">${error}</span>
         <label>Request</label>
@@ -78,6 +83,12 @@
 <div>
     <a href="${ordersUrl}">View all orders</a>
     <a href="${getOrdersUrl}">View all GET orders</a>
+</div>
+<div>
+    <form action="/waitrest/import" method="POST">
+        <textarea name="orders" class="import"></textarea>
+        <input type="submit" value="Import"/>
+    </form>
 </div>
 </body>
 </html>

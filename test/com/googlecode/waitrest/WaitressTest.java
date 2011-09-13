@@ -1,5 +1,6 @@
 package com.googlecode.waitrest;
 
+import com.googlecode.totallylazy.Strings;
 import com.googlecode.utterlyidle.Request;
 import com.googlecode.utterlyidle.Response;
 import com.googlecode.utterlyidle.Status;
@@ -45,5 +46,12 @@ public class WaitressTest {
         waitress.takeOrder(put("/cheese").withHeader(CONTENT_TYPE, TEXT_PLAIN).withInput("cheese".getBytes()).build());
 
         assertThat(waitress.serveGetOrder(get("/cheese").build()).toString(), is(response(OK).header(CONTENT_TYPE, TEXT_PLAIN).bytes("cheese".getBytes()).toString()));
+    }
+    
+    @Test
+    public void importOrders() throws Exception {
+        String orders = Strings.toString(getClass().getResourceAsStream("export.txt"));
+        
+        assertThat(waitress.importOrders(orders).contains("2 orders imported"), is(true));
     }
 }
