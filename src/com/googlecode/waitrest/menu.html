@@ -24,13 +24,19 @@
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js" type="text/javascript"></script>
     <script type="text/javascript">
         $(document).ready(function () {
-            $(".sample").click(function() {
-                $("textarea:empty").each(function() {
-                    $(this).attr("value", $(this).attr("placeholder"));
+            sampleData("textarea:empty", ".sampleGET", "data-get");
+            sampleData("textarea:empty", ".samplePOST", "data-post");
+            sampleData("textarea:empty", ".samplePOSTWithParams", "data-postParams");
+        });
+
+        function sampleData(input, populateTrigger, dataSourceAttr) {
+            $(populateTrigger).click(function() {
+                $(input).each(function() {
+                    $(this).attr("value", $(this).attr(dataSourceAttr));
                 });
                 return false;
             });
-        });
+        }
     </script>
 </head>
 <body>
@@ -38,11 +44,19 @@
     <form action="${orderUrl}" method="post">
         <span class="error">${error}</span>
         <label>Request</label>
-        <textarea name="request" placeholder="GET /cheese HTTP/1.1">${request}</textarea>
+        <textarea name="request"
+                  data-get="GET /cheese HTTP/1.1"
+                  data-postParams="POST /cheese HTTP/1.1&#13;&#10;Content-Type: application/x-www-form-urlencoded&#13;&#10;&#13;&#10;a=b"
+                  data-post="POST /cheese HTTP/1.1">${request}</textarea>
         <label>Response</label>
-        <textarea name="response" placeholder="HTTP/1.1 200 OK&#13;&#10;Content-Type: text/plain&#13;&#10;&#13;&#10;gouda">${response}</textarea>
+        <textarea name="response"
+                  data-get="HTTP/1.1 200 OK&#13;&#10;Content-Type: text/plain&#13;&#10;&#13;&#10;GET gouda"
+                  data-postParams="HTTP/1.1 200 OK&#13;&#10;Content-Type: text/plain&#13;&#10;&#13;&#10;POST gouda with param"
+                  data-post="HTTP/1.1 200 OK&#13;&#10;Content-Type: text/plain&#13;&#10;&#13;&#10;POST gouda">${response}</textarea>
         <input type="submit" value="Take order"/>
-        <a href="" class="sample">Sample request/response</a>
+        <a href="" class="sampleGET">Sample GET</a> |
+        <a href="" class="samplePOST">Sample POST</a> | 
+        <a href="" class="samplePOSTWithParams">Sample POST With Params</a>
     </form>
 </div>
 <div>
