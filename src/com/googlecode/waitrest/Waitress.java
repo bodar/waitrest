@@ -9,6 +9,7 @@ import com.googlecode.totallylazy.Pair;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.Strings;
 import com.googlecode.totallylazy.Uri;
+import com.googlecode.utterlyidle.Redirector;
 import com.googlecode.utterlyidle.Request;
 import com.googlecode.utterlyidle.Requests;
 import com.googlecode.utterlyidle.Response;
@@ -27,14 +28,14 @@ import static com.googlecode.totallylazy.Callables.first;
 import static com.googlecode.totallylazy.Pair.pair;
 import static com.googlecode.totallylazy.Predicates.not;
 import static com.googlecode.totallylazy.Sequences.sequence;
+import static com.googlecode.totallylazy.proxy.Call.method;
+import static com.googlecode.totallylazy.proxy.Call.on;
 import static com.googlecode.utterlyidle.HttpHeaders.LOCATION;
 import static com.googlecode.utterlyidle.HttpMessageParser.parseRequest;
 import static com.googlecode.utterlyidle.HttpMessageParser.parseResponse;
 import static com.googlecode.utterlyidle.Responses.response;
 import static com.googlecode.utterlyidle.Status.CREATED;
 import static com.googlecode.utterlyidle.Status.NOT_FOUND;
-import static com.googlecode.utterlyidle.proxy.Resource.redirect;
-import static com.googlecode.utterlyidle.proxy.Resource.resource;
 
 public class Waitress {
 
@@ -47,16 +48,18 @@ public class Waitress {
     private static final String ANY_PATH = "{path:^(?!waitrest/order|waitrest/orders|waitrest/orders/get|waitrest/export|waitrest/import).*}";
 
     private Kitchen kitchen;
+    private final Redirector redirector;
 
-    public Waitress(Kitchen kitchen) {
+    public Waitress(Kitchen kitchen, Redirector redirector) {
         this.kitchen = kitchen;
+        this.redirector = redirector;
     }
 
     @GET
     @Path("")
     @Priority(Priority.High)
     public Response root() {
-        return redirect(resource(Waitress.class).showMenu());
+        return redirector.seeOther(method(on(Waitress.class).showMenu()));
     }
 
     @GET

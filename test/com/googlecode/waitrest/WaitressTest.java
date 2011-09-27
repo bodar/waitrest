@@ -1,10 +1,16 @@
 package com.googlecode.waitrest;
 
 import com.googlecode.totallylazy.Strings;
+import com.googlecode.utterlyidle.BaseUri;
+import com.googlecode.utterlyidle.BaseUriRedirector;
+import com.googlecode.utterlyidle.Binding;
+import com.googlecode.utterlyidle.Bindings;
 import com.googlecode.utterlyidle.Request;
 import com.googlecode.utterlyidle.Response;
 import com.googlecode.utterlyidle.Status;
 import org.junit.Test;
+
+import java.util.Iterator;
 
 import static com.googlecode.utterlyidle.HttpHeaders.CONTENT_TYPE;
 import static com.googlecode.utterlyidle.MediaType.TEXT_PLAIN;
@@ -17,7 +23,7 @@ import static org.hamcrest.Matchers.is;
 
 public class WaitressTest {
     private Kitchen kitchen = new Kitchen();
-    private Waitress waitress = new Waitress(kitchen);
+    private Waitress waitress = new Waitress(kitchen, null);
 
     @Test
     public void serveRequestResponseOrder() {
