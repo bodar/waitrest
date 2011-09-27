@@ -83,7 +83,7 @@ public class Waitress {
     @Produces("text/plain")
     @Priority(Priority.High)
     public String importOrders(@FormParam("orders") String orders) {
-        Sequence<String> messages = sequence(orders.split(REQUEST_SEPARATOR)).filter(not(Strings.empty()));
+        Sequence<String> messages = sequence(orders.trim().split(REQUEST_SEPARATOR)).filter(not(Strings.empty()));
         messages.forEach(takeOrder());
         return messages.size()+" orders imported";
     }
