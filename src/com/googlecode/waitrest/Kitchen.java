@@ -33,7 +33,7 @@ public class Kitchen {
     public Response receiveOrder(Request request) {
         return orders.put(request, Responses.response().
                 header(CONTENT_TYPE, request.headers().getValue(CONTENT_TYPE)).
-                bytes(request.input()).entity(""));
+                bytes(request.input()).entity(new String(request.input())));
     }
 
     public Option<Response> serve(Request request) {

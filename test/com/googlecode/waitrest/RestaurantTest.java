@@ -1,5 +1,6 @@
 package com.googlecode.waitrest;
 
+import com.googlecode.utterlyidle.HttpHeaders;
 import com.googlecode.utterlyidle.Request;
 import com.googlecode.utterlyidle.Response;
 import com.googlecode.utterlyidle.ServerConfiguration;
@@ -51,8 +52,13 @@ public class RestaurantTest {
 
         restClient.handle(put);
 
-        assertThat(restClient.handle(get), is(response));
+        assertThat(filterDate(restClient.handle(get)), is(response));
         assertThat(restClient.handle(unknownGet).status(), is(Status.NOT_FOUND));
+    }
+
+    private Response filterDate(Response response) {
+        response.headers().remove(HttpHeaders.DATE);
+        return response;
     }
 
     @Test
@@ -64,7 +70,7 @@ public class RestaurantTest {
 
         restClient.handle(post(server.uri() + Waitress.WAITRESS_ORDER_PATH).withForm("request", request.toString()).withForm("response", expectedResponse.toString()).build());
 
-        assertThat(restClient.handle(request), is(expectedResponse));
+        assertThat(filterDate(restClient.handle(request)), is(expectedResponse));
         assertThat(restClient.handle(unknownRequest).status(), is(Status.NOT_FOUND));
     }
 
@@ -78,7 +84,7 @@ public class RestaurantTest {
 
         restClient.handle(post(server.uri() + Waitress.WAITRESS_ORDER_PATH).withForm("request", request.toString()).withForm("response", expectedResponse.toString()).build());
 
-        assertThat(restClient.handle(request), is(expectedResponse));
+        assertThat(filterDate(restClient.handle(request)), is(expectedResponse));
         assertThat(restClient.handle(unknownRequest).status(), is(Status.NOT_FOUND));
     }
 
