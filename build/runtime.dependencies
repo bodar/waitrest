@@ -1,7 +1,7 @@
-mvn://repo.bodar.com/com.googlecode.utterlyidle:utterlyidle:jar|sources:417
-mvn://repo.bodar.com/com.googlecode.totallylazy:totallylazy:jar|sources:515
-mvn://repo.bodar.com/com.googlecode.yadic:yadic:jar|sources:129
-mvn://repo.bodar.com/com.googlecode.funclate:funclate:jar|sources:45
+mvn://repo.bodar.com/com.googlecode.utterlyidle:utterlyidle:jar|sources:423
+mvn://repo.bodar.com/com.googlecode.totallylazy:totallylazy:jar|sources:523
+mvn://repo.bodar.com/com.googlecode.yadic:yadic:jar|sources:130
+mvn://repo.bodar.com/com.googlecode.funclate:funclate:jar|sources:48
 
 mvn:cglib:cglib-nodep:jar:2.2
 mvn:org.objenesis:objenesis:jar:1.2
