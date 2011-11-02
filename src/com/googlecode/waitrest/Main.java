@@ -1,10 +1,10 @@
 package com.googlecode.waitrest;
 
-import com.googlecode.utterlyidle.ServerConfiguration;
-import com.googlecode.utterlyidle.httpserver.RestServer;
+import static com.googlecode.utterlyidle.ApplicationBuilder.application;
+import static com.googlecode.utterlyidle.ServerConfiguration.defaultConfiguration;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        new RestServer(new Restaurant(), ServerConfiguration.defaultConfiguration().port(8899));
+        application(Restaurant.class).start(defaultConfiguration().port(8899));
     }
 }

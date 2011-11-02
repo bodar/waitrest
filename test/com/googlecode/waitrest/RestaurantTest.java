@@ -3,16 +3,16 @@ package com.googlecode.waitrest;
 import com.googlecode.utterlyidle.HttpHeaders;
 import com.googlecode.utterlyidle.Request;
 import com.googlecode.utterlyidle.Response;
-import com.googlecode.utterlyidle.ServerConfiguration;
+import com.googlecode.utterlyidle.Server;
 import com.googlecode.utterlyidle.Status;
 import com.googlecode.utterlyidle.handlers.ClientHttpHandler;
-import com.googlecode.utterlyidle.httpserver.RestServer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
 
+import static com.googlecode.utterlyidle.ApplicationBuilder.application;
 import static com.googlecode.utterlyidle.HttpHeaders.CONTENT_LENGTH;
 import static com.googlecode.utterlyidle.HttpHeaders.CONTENT_TYPE;
 import static com.googlecode.utterlyidle.MediaType.TEXT_PLAIN;
@@ -20,6 +20,7 @@ import static com.googlecode.utterlyidle.RequestBuilder.get;
 import static com.googlecode.utterlyidle.RequestBuilder.post;
 import static com.googlecode.utterlyidle.RequestBuilder.put;
 import static com.googlecode.utterlyidle.Responses.response;
+import static com.googlecode.utterlyidle.ServerConfiguration.defaultConfiguration;
 import static com.googlecode.utterlyidle.Status.BAD_REQUEST;
 import static com.googlecode.utterlyidle.Status.NO_CONTENT;
 import static com.googlecode.utterlyidle.Status.OK;
@@ -29,12 +30,12 @@ import static org.hamcrest.Matchers.is;
 
 public class RestaurantTest {
 
-    private RestServer server;
+    private Server server;
     private ClientHttpHandler restClient = new ClientHttpHandler();
 
     @Before
     public void setUp() throws Exception {
-        server = new RestServer(new Restaurant(), ServerConfiguration.defaultConfiguration().port(8003));
+        server= application(Restaurant.class).start(defaultConfiguration().port(8003));
     }
 
     @After
