@@ -70,9 +70,9 @@ public class Waitress {
             public Pair<Request, Response> call(Pair<Request, Response> order) throws Exception {
                 Request request = new RequestBuilder(order.first()).build();
                 Response response = HttpMessageParser.parseResponse(order.second().toString());
-                Request replacedRequest = request.uri(request.uri().authority(newAuthority));
-                Response replacedResponse = response.bytes(new String(response.bytes()).replaceAll(request.uri().authority(), newAuthority).getBytes());
-                return Pair.pair(replacedRequest, replacedResponse);
+                response.bytes(new String(response.bytes()).replaceAll(request.uri().authority(), newAuthority).getBytes());
+                request.uri(request.uri().authority(newAuthority));
+                return Pair.pair(request, response);
             }
         };
     }
