@@ -2,26 +2,11 @@ package com.googlecode.waitrest;
 
 
 import com.googlecode.funclate.Model;
-import com.googlecode.totallylazy.Callable1;
-import com.googlecode.totallylazy.Callables;
-import com.googlecode.totallylazy.Option;
-import com.googlecode.totallylazy.Pair;
-import com.googlecode.totallylazy.Sequence;
-import com.googlecode.totallylazy.Strings;
-import com.googlecode.totallylazy.Uri;
-import com.googlecode.utterlyidle.Redirector;
-import com.googlecode.utterlyidle.Request;
-import com.googlecode.utterlyidle.Requests;
-import com.googlecode.utterlyidle.Response;
-import com.googlecode.utterlyidle.Status;
-import com.googlecode.utterlyidle.annotations.FormParam;
-import com.googlecode.utterlyidle.annotations.GET;
-import com.googlecode.utterlyidle.annotations.HttpMethod;
-import com.googlecode.utterlyidle.annotations.POST;
-import com.googlecode.utterlyidle.annotations.PUT;
-import com.googlecode.utterlyidle.annotations.Path;
-import com.googlecode.utterlyidle.annotations.Priority;
-import com.googlecode.utterlyidle.annotations.Produces;
+import com.googlecode.totallylazy.*;
+import com.googlecode.utterlyidle.*;
+import com.googlecode.utterlyidle.annotations.*;
+
+import java.util.Map;
 
 import static com.googlecode.funclate.Model.model;
 import static com.googlecode.totallylazy.Callables.first;
@@ -74,8 +59,22 @@ public class Waitress {
     @Path(WAITRESS_ORDERS_PATH)
     @Produces("text/plain")
     @Priority(Priority.High)
-    public Response allOrders() {
-        return response(Status.OK).entity(model().add("orders", kitchen.allOrders()).add("requestSeparator", REQUEST_SEPARATOR).add("responseSeparator", RESPONSE_SEPARATOR));
+    public Response allOrders(@QueryParam("authority") final Option<String> authority) {
+        Map<Request, Response> orders = authority.isEmpty() ? kitchen.allOrders() : Maps.map(Maps.pairs(kitchen.allOrders()).map(authorityToNewAuthority(authority.get())));
+        return response(Status.OK).entity(model().add("orders", orders).add("requestSeparator", REQUEST_SEPARATOR).add("responseSeparator", RESPONSE_SEPARATOR));
+    }
+
+    private Callable1<Pair<Request, Response>, Pair<Request, Response>> authorityToNewAuthority(final String newAuthority) {
+        return new Callable1<Pair<Request, Response>, Pair<Request, Response>>() {
+            @Override
+            public Pair<Request, Response> call(Pair<Request, Response> order) throws Exception {
+                Request request = order.first();
+                Response response = order.second();
+                Request replacedRequest = request.uri(request.uri().authority(newAuthority));
+                Response replacedResponse = response.bytes(new String(response.bytes()).replaceAll(request.uri().authority(), newAuthority).getBytes());
+                return Pair.pair(replacedRequest, replacedResponse);
+            }
+        };
     }
 
     @POST

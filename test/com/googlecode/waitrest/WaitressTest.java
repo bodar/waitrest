@@ -1,5 +1,6 @@
 package com.googlecode.waitrest;
 
+import com.googlecode.totallylazy.Option;
 import com.googlecode.totallylazy.Strings;
 import com.googlecode.utterlyidle.BaseUri;
 import com.googlecode.utterlyidle.BaseUriRedirector;
@@ -12,14 +13,18 @@ import org.junit.Test;
 
 import java.util.Iterator;
 
+import static com.googlecode.totallylazy.Option.none;
+import static com.googlecode.totallylazy.Some.some;
 import static com.googlecode.utterlyidle.HttpHeaders.CONTENT_TYPE;
 import static com.googlecode.utterlyidle.MediaType.TEXT_PLAIN;
 import static com.googlecode.utterlyidle.RequestBuilder.get;
 import static com.googlecode.utterlyidle.RequestBuilder.put;
 import static com.googlecode.utterlyidle.Responses.response;
 import static com.googlecode.utterlyidle.Status.OK;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.core.StringContains.containsString;
 
 public class WaitressTest {
     private Kitchen kitchen = new Kitchen();
@@ -59,5 +64,14 @@ public class WaitressTest {
         String orders = Strings.toString(getClass().getResourceAsStream("export.txt"));
         
         assertThat(waitress.importOrders(orders).contains("2 orders imported"), is(true));
+    }
+
+    @Test
+    public void allOrdersWithSpecifiedAuthority() throws Exception {
+        waitress.takeOrder("GET http://someserver:1234/some/path HTTP/1.1", "HTTP/1.1 200 OK\n\n<?xml version=\"1.0\" encoding=\"UTF-8\"?><feed xmlns=\"http://www.w3.org/2005/Atom\"><url>http://someserver:1234/foo</url></feed>");
+        waitress.takeOrder("GET http://unrelatedServer:1234/some/path HTTP/1.1", "HTTP/1.1 200 OK\n\n<?xml version=\"1.0\" encoding=\"UTF-8\"?><feed xmlns=\"http://www.w3.org/2005/Atom\"><url>http://unrelatedServer:1234/foo</url></feed>");
+        String response = waitress.allOrders(some("anotherServer:4321")).entity().toString();
+        assertThat(response, not(containsString("http://someserver:1234")));
+        assertThat(response, containsString("http://unrelatedServer:1234"));
     }
 }
