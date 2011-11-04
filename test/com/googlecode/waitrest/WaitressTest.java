@@ -70,8 +70,11 @@ public class WaitressTest {
     public void allOrdersWithSpecifiedAuthority() throws Exception {
         waitress.takeOrder("GET http://someserver:1234/some/path HTTP/1.1", "HTTP/1.1 200 OK\n\n<?xml version=\"1.0\" encoding=\"UTF-8\"?><feed xmlns=\"http://www.w3.org/2005/Atom\"><url>http://someserver:1234/foo</url></feed>");
         waitress.takeOrder("GET http://unrelatedServer:1234/some/path HTTP/1.1", "HTTP/1.1 200 OK\n\n<?xml version=\"1.0\" encoding=\"UTF-8\"?><feed xmlns=\"http://www.w3.org/2005/Atom\"><url>http://unrelatedServer:1234/foo</url></feed>");
-        String response = waitress.allOrders(some("anotherServer:4321")).entity().toString();
-        assertThat(response, not(containsString("http://someserver:1234")));
-        assertThat(response, containsString("http://unrelatedServer:1234"));
+        String responseWithAuthority = waitress.allOrders(some("anotherServer:4321")).entity().toString();
+        assertThat(responseWithAuthority, not(containsString("http://someserver:1234")));
+        assertThat(responseWithAuthority, containsString("http://unrelatedServer:1234"));
+        String responseWithNoAuthority = waitress.allOrders(Option.<String>none()).entity().toString();
+        assertThat(responseWithNoAuthority, containsString("http://someserver:1234/some/path"));
+        assertThat(responseWithNoAuthority, containsString("<?xml version=\"1.0\" encoding=\"UTF-8\"?><feed xmlns=\"http://www.w3.org/2005/Atom\"><url>http://someserver:1234/foo</url></feed>"));
     }
 }

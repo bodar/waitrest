@@ -68,8 +68,8 @@ public class Waitress {
         return new Callable1<Pair<Request, Response>, Pair<Request, Response>>() {
             @Override
             public Pair<Request, Response> call(Pair<Request, Response> order) throws Exception {
-                Request request = order.first();
-                Response response = order.second();
+                Request request = new RequestBuilder(order.first()).build();
+                Response response = HttpMessageParser.parseResponse(order.second().toString());
                 Request replacedRequest = request.uri(request.uri().authority(newAuthority));
                 Response replacedResponse = response.bytes(new String(response.bytes()).replaceAll(request.uri().authority(), newAuthority).getBytes());
                 return Pair.pair(replacedRequest, replacedResponse);
