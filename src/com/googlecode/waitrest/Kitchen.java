@@ -1,10 +1,6 @@
 package com.googlecode.waitrest;
 
-import com.googlecode.totallylazy.Callable1;
-import com.googlecode.totallylazy.Maps;
-import com.googlecode.totallylazy.Option;
-import com.googlecode.totallylazy.Pair;
-import com.googlecode.totallylazy.Predicate;
+import com.googlecode.totallylazy.*;
 import com.googlecode.utterlyidle.Request;
 import com.googlecode.utterlyidle.Requests;
 import com.googlecode.utterlyidle.Response;
@@ -12,19 +8,16 @@ import com.googlecode.utterlyidle.Responses;
 import com.googlecode.utterlyidle.annotations.HttpMethod;
 import com.googlecode.utterlyidle.io.HierarchicalPath;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static com.googlecode.totallylazy.Maps.pairs;
-import static com.googlecode.totallylazy.Predicates.is;
-import static com.googlecode.totallylazy.Predicates.or;
-import static com.googlecode.totallylazy.Predicates.subsetOf;
-import static com.googlecode.totallylazy.Predicates.where;
+import static com.googlecode.totallylazy.Predicates.*;
 import static com.googlecode.totallylazy.Sequences.sequence;
 import static com.googlecode.utterlyidle.HttpHeaders.CONTENT_TYPE;
 
 public class Kitchen {
-    private Map<Request, Response> orders = new HashMap<Request, Response>();
+    private Map<Request, Response> orders = new ConcurrentHashMap<Request, Response>();
 
     public Response receiveOrder(Request request, Response response) {
         return orders.put(request, response);
