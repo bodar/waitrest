@@ -1,11 +1,12 @@
 syntax: glob
 out
-*.iws
-build/artifacts
-.idea/workspace.xml
-*.orig
 lib/build
 lib/runtime
 lib/optional
+build/artifacts
+*.iws
+*.iml
+*.ipr
+*.orig
 .idea
 .DS_Store
