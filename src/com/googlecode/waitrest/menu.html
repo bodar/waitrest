@@ -64,14 +64,14 @@
         <span class="error">${error}</span>
         <label>Request</label>
         <textarea name="request"
-                  data-get="GET /cheese HTTP/1.1"
-                  data-postParams="POST /cheese HTTP/1.1&#13;&#10;Content-Type: application/x-www-form-urlencoded&#13;&#10;&#13;&#10;a=b"
-                  data-post="POST /cheese HTTP/1.1">${request}</textarea>
+                  data-get="GET /cheese HTTP/1.1&#13;&#10;Host: localhost:8899"
+                  data-postParams="POST /cheese HTTP/1.1&#13;&#10;Host: localhost:8899&#13;&#10;Content-Type: application/x-www-form-urlencoded&#13;&#10;&#13;&#10;a=b"
+                  data-post="POST /cheese HTTP/1.1&#13;&#10;Host: localhost:8899">${request}</textarea>
         <label>Response</label>
         <textarea name="response"
-                  data-get="HTTP/1.1 200 OK&#13;&#10;Content-Type: text/plain&#13;&#10;&#13;&#10;GET gouda"
-                  data-postParams="HTTP/1.1 200 OK&#13;&#10;Content-Type: text/plain&#13;&#10;&#13;&#10;POST gouda with param"
-                  data-post="HTTP/1.1 200 OK&#13;&#10;Content-Type: text/plain&#13;&#10;&#13;&#10;POST gouda">${response}</textarea>
+                  data-get="HTTP/1.1 200 OK&#13;&#10;Content-Type: text/plain&#13;&#10;Content-Length: 9&#13;&#10;&#13;&#10;GET gouda"
+                  data-postParams="HTTP/1.1 200 OK&#13;&#10;Content-Type: text/plain&#13;&#10;Content-Length: 21&#13;&#10;&#13;&#10;POST gouda with param"
+                  data-post="HTTP/1.1 200 OK&#13;&#10;Content-Type: text/plain&#13;&#10;Content-Length: 10&#13;&#10;&#13;&#10;POST gouda">${response}</textarea>
         <input type="submit" name="action" value="Take order"/>
         <input type="submit" name="action" value="Take quick order"/>
         <a href="" class="sampleGET">Sample GET</a> |
