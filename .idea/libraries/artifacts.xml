@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="artifacts">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/build/artifacts/waitrest-dev.build-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/build/artifacts/waitrest-dev.build.jar!/" />
+      <root url="jar://$PROJECT_DIR$/build/artifacts/waitrest-dev.build.test.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
