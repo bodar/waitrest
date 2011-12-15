@@ -25,12 +25,8 @@
 
     <path id="all.dependancies">
         <fileset dir="${build.dependencies.dir}" includes="**/*.jar"/>
-        <fileset dir="${runtime.dependencies.dir}" includes="*.jar"/>
-        <fileset dir="${optional.dependencies.dir}" includes="*.jar"/>
-    </path>
-
-    <path id="runtime.dependencies">
-        <fileset id="runtime.dependencies.fileset" dir="${runtime.dependencies.dir}" includes="**/*.jar"/>
+        <fileset dir="${runtime.dependencies.dir}" includes="**/*.jar"/>
+        <fileset dir="${optional.dependencies.dir}" includes="**/*.jar"/>
     </path>
 
     <path id="all.jars">
@@ -57,7 +53,7 @@
 
     <target name="compile">
         <compile.and.jar src="${src}" jar="${release.jar.path}" classpathref="all.dependancies"
-                         version="${release.version}"/>
+        version="${release.version}"/>
         <compile.and.jar src="${test}" jar="${test.jar.path}" classpathref="all.jars" version="${release.version}"/>
     </target>
 
@@ -65,34 +61,9 @@
         <test jar="${test.jar.path}" classpathref="all.jars" reports="${reports}"/>
     </target>
 
-    <target name="package-no-dep">
-        <property name="package.spool.dir" value="${artifacts}/spool"/>
-        <property name="package.working.dir" value="${artifacts}/working"/>
-        <delete dir="${package.spool.dir}"/>
-        <mkdir dir="${package.spool.dir}"/>
-        <copy todir="${package.spool.dir}" file="${release.jar.path}">
-            <fileset refid="runtime.dependencies.fileset"/>
-        </copy>
-
-        <delete dir="${package.working.dir}"/>
-        <mkdir dir="${package.working.dir}"/>
-
-        <exec executable="${build}/explode-jars.sh" failonerror="true">
-            <arg value="${package.spool.dir}"/>
-            <arg value="${package.working.dir}"/>
-        </exec>
-        <delete dir="${package.working.dir}/META-INF"/>
-
-        <create.jar
-                jar="${release.nodep.jar.path}"
-                basedir="${package.working.dir}"
-                main.class="com.googlecode.waitrest.Main"
-                version="${build.number}"/>
-
-        <delete dir="${package.working.dir}"/>
-        <delete dir="${package.spool.dir}"/>
+    <target name="embed">
+        <embed.libs />
     </target>
-
 
     <target name="package">
         <mkdir dir="${artifacts}"/>
@@ -125,6 +96,6 @@
 
     </target>
 
-    <target name="build" depends="update, clean, compile, test, package" description="build all"/>
+    <target name="build" depends="update, clean, compile, test, embed, package" description="build all"/>
 
 </project>

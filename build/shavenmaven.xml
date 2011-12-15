@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
-
     <macrodef name="install">
         <attribute name="version"/>
         <attribute name="directory" default="lib"/>
