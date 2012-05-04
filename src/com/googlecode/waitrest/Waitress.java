@@ -18,7 +18,7 @@ import static com.googlecode.totallylazy.proxy.Call.on;
 import static com.googlecode.utterlyidle.HttpHeaders.LOCATION;
 import static com.googlecode.utterlyidle.HttpMessageParser.parseRequest;
 import static com.googlecode.utterlyidle.HttpMessageParser.parseResponse;
-import static com.googlecode.utterlyidle.Responses.response;
+import static com.googlecode.utterlyidle.ResponseBuilder.response;
 import static com.googlecode.utterlyidle.Status.CREATED;
 import static com.googlecode.utterlyidle.Status.NOT_FOUND;
 
@@ -61,18 +61,19 @@ public class Waitress {
     @Priority(Priority.High)
     public Response allOrders(@QueryParam("authority") final Option<String> authority) {
         Map<Request, Response> orders = authority.isEmpty() ? kitchen.allOrders() : Maps.map(Maps.pairs(kitchen.allOrders()).map(authorityToNewAuthority(authority.get())));
-        return response(Status.OK).entity(model().add("orders", orders).add("requestSeparator", REQUEST_SEPARATOR).add("responseSeparator", RESPONSE_SEPARATOR));
+        return response(Status.OK).entity(model().add("orders", orders).add("requestSeparator", REQUEST_SEPARATOR).add("responseSeparator", RESPONSE_SEPARATOR)).build();
     }
 
     private Callable1<Pair<Request, Response>, Pair<Request, Response>> authorityToNewAuthority(final String newAuthority) {
         return new Callable1<Pair<Request, Response>, Pair<Request, Response>>() {
             @Override
             public Pair<Request, Response> call(Pair<Request, Response> order) throws Exception {
-                Request request = new RequestBuilder(order.first()).build();
-                Response response = HttpMessageParser.parseResponse(order.second().toString());
-                response.bytes(new String(response.bytes()).replaceAll(request.uri().authority(), newAuthority).getBytes());
+                RequestBuilder request = RequestBuilder.modify(order.first());
+                Response originalResponse = HttpMessageParser.parseResponse(order.second().toString());
+                ResponseBuilder response = ResponseBuilder.modify(originalResponse);
+                response.entity(originalResponse.entity().toString().replaceAll(request.uri().authority(), newAuthority));
                 request.uri(request.uri().authority(newAuthority));
-                return Pair.pair(request, response);
+                return Pair.pair(request.build(), response.build());
             }
         };
     }
@@ -93,14 +94,14 @@ public class Waitress {
     @Priority(Priority.High)
     public Response allGetOrders() {
         Sequence<String> urls = sequence(kitchen.allOrders(HttpMethod.GET).keySet()).map(uri()).map(Callables.<Uri>asString());
-        return response(Status.OK).entity(model().add("urls", urls.toList()));
+        return response(Status.OK).entity(model().add("urls", urls.toList())).build();
     }
 
     @GET
     @Path(ANY_PATH)
     @Priority(Priority.Low)
     public Response serveGetOrder(Request request) {
-        return kitchen.serve(request).getOrElse(response(NOT_FOUND).entity("Order not found"));
+        return kitchen.serve(request).getOrElse(response(NOT_FOUND).entity("Order not found").build());
     }
 
     @POST
@@ -121,11 +122,11 @@ public class Waitress {
             kitchen.receiveOrder(request, response);
 
             if (action.getOrElse("").contains("quick")) {
-                return response(Status.CREATED).entity(menuPageBaseModel(req, resp).add("message", "Quick order taken for " + request.method() + " " + request.uri()));
+                return response(Status.CREATED).entity(menuPageBaseModel(req, resp).add("message", "Quick order taken for " + request.method() + " " + request.uri())).build();
             }
             return created(request);
         } catch (IllegalArgumentException e) {
-            return response(Status.BAD_REQUEST).entity(menuPageBaseModel(req, resp).add("error", e.getMessage()));
+            return response(Status.BAD_REQUEST).entity(menuPageBaseModel(req, resp).add("error", e.getMessage())).build();
         }
     }
 
@@ -141,7 +142,7 @@ public class Waitress {
     @Path(ANY_PATH)
     @Priority(Priority.Low)
     public Response servePostOrder(Request request) {
-        return kitchen.serve(request).getOrElse(response(NOT_FOUND));
+        return kitchen.serve(request).getOrElse(response(NOT_FOUND).build());
     }
 
     @PUT
@@ -190,7 +191,7 @@ public class Waitress {
         if (request.method().equalsIgnoreCase(HttpMethod.POST))
             model.add("formParameters", sequence(Requests.form(request)).map(first(String.class)).toList());
 
-        return response(CREATED).header(LOCATION, request.uri().toString()).entity(model);
+        return response(CREATED).header(LOCATION, request.uri().toString()).entity(model).build();
     }
 
 

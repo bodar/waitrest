@@ -59,7 +59,7 @@ public class Manager implements ResourcesModule, ApplicationScopedModule, Respon
         return new Predicate<Pair<Request, Response>>() {
             @Override
             public boolean matches(Pair<Request, Response> requestResponsePair) {
-                return ((Model) requestResponsePair.second().entity()).contains(key);
+                return ((Model) requestResponsePair.second().entity().value()).contains(key);
             }
         };
     }
@@ -68,7 +68,7 @@ public class Manager implements ResourcesModule, ApplicationScopedModule, Respon
         return new Predicate<Pair<Request, Response>>() {
             @Override
             public boolean matches(Pair<Request, Response> requestResponsePair) {
-                return ((Model) requestResponsePair.second().entity()).get("method", String.class).equalsIgnoreCase(httpMethod);
+                return ((Model) requestResponsePair.second().entity().value()).get("method", String.class).equalsIgnoreCase(httpMethod);
             }
         };
     }
