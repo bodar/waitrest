@@ -1,10 +1,7 @@
 package com.googlecode.waitrest;
 
 import com.googlecode.totallylazy.*;
-import com.googlecode.utterlyidle.Request;
-import com.googlecode.utterlyidle.Requests;
-import com.googlecode.utterlyidle.Response;
-import com.googlecode.utterlyidle.Responses;
+import com.googlecode.utterlyidle.*;
 import com.googlecode.utterlyidle.annotations.HttpMethod;
 import com.googlecode.utterlyidle.io.HierarchicalPath;
 
@@ -24,9 +21,9 @@ public class Kitchen {
     }
 
     public Response receiveOrder(Request request) {
-        return orders.put(request, Responses.response().
+        return orders.put(request, ResponseBuilder.response().
                 header(CONTENT_TYPE, request.headers().getValue(CONTENT_TYPE)).
-                bytes(request.input()).entity(new String(request.input())));
+                entity(request.entity()).build());
     }
 
     public Option<Response> serve(Request request) {

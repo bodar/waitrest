@@ -1,10 +1,6 @@
 package com.googlecode.waitrest;
 
-import com.googlecode.utterlyidle.HttpHeaders;
-import com.googlecode.utterlyidle.Request;
-import com.googlecode.utterlyidle.Response;
-import com.googlecode.utterlyidle.Server;
-import com.googlecode.utterlyidle.Status;
+import com.googlecode.utterlyidle.*;
 import com.googlecode.utterlyidle.handlers.ClientHttpHandler;
 import org.junit.After;
 import org.junit.Before;
@@ -19,7 +15,7 @@ import static com.googlecode.utterlyidle.MediaType.TEXT_PLAIN;
 import static com.googlecode.utterlyidle.RequestBuilder.get;
 import static com.googlecode.utterlyidle.RequestBuilder.post;
 import static com.googlecode.utterlyidle.RequestBuilder.put;
-import static com.googlecode.utterlyidle.Responses.response;
+import static com.googlecode.utterlyidle.ResponseBuilder.response;
 import static com.googlecode.utterlyidle.ServerConfiguration.defaultConfiguration;
 import static com.googlecode.utterlyidle.Status.BAD_REQUEST;
 import static com.googlecode.utterlyidle.Status.NO_CONTENT;
@@ -49,7 +45,7 @@ public class RestaurantTest {
         Request put = put(cheeseUrl).withQuery("type", "cheddar").withHeader(CONTENT_TYPE, TEXT_PLAIN).withHeader(CONTENT_LENGTH, "6").withInput("cheese".getBytes()).build();
         Request get = get(cheeseUrl).withQuery("type", "cheddar").build();
         Request unknownGet = get(cheeseUrl).withQuery("type", "gouda").build();
-        Response response = response(OK).bytes("cheese".getBytes()).header(CONTENT_TYPE, TEXT_PLAIN).header(CONTENT_LENGTH, "6");
+        Response response = response(OK).entity("cheese").header(CONTENT_TYPE, TEXT_PLAIN).header(CONTENT_LENGTH, "6").build();
 
         restClient.handle(put);
 
@@ -58,8 +54,7 @@ public class RestaurantTest {
     }
 
     private Response filterDate(Response response) {
-        response.headers().remove(HttpHeaders.DATE);
-        return response;
+        return ResponseBuilder.modify(response).removeHeaders(HttpHeaders.DATE).build();
     }
 
     @Test
@@ -67,7 +62,7 @@ public class RestaurantTest {
         String cheeseUrl = server.uri() + "cheese";
         Request request = get(cheeseUrl).withQuery("type", "cheddar").build();
         Request unknownRequest = get(cheeseUrl).withQuery("type", "gouda").build();
-        Response expectedResponse = response(OK).bytes("cheese".getBytes()).header(CONTENT_TYPE, TEXT_PLAIN).header(CONTENT_LENGTH, "6");
+        Response expectedResponse = response(OK).entity("cheese").header(CONTENT_TYPE, TEXT_PLAIN).header(CONTENT_LENGTH, "6").build();
 
         restClient.handle(post(server.uri() + Waitress.WAITRESS_ORDER_PATH).withForm("request", request.toString()).withForm("response", expectedResponse.toString()).build());
 
@@ -81,7 +76,7 @@ public class RestaurantTest {
         Request request = post(cheeseUrl).withForm("type", "cheddar").build();
         System.out.println("request = " + request);
         Request unknownRequest = post(cheeseUrl).withForm("type", "gouda").build();
-        Response expectedResponse = response(OK).bytes("cheese".getBytes()).header(CONTENT_TYPE, TEXT_PLAIN).header(CONTENT_LENGTH, "6");
+        Response expectedResponse = response(OK).entity("cheese").header(CONTENT_TYPE, TEXT_PLAIN).header(CONTENT_LENGTH, "6").build();
 
         restClient.handle(post(server.uri() + Waitress.WAITRESS_ORDER_PATH).withForm("request", request.toString()).withForm("response", expectedResponse.toString()).build());
 
