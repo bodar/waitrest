@@ -31,7 +31,7 @@ public class Kitchen {
                 filter(where(Requests.path(), is(HierarchicalPath.hierarchicalPath(request.uri().path())))).
                 filter(where(Requests.form(), subsetOf(Requests.form(request)))).
                 filter(where(Requests.query(), is(Requests.query(request)))).
-                filter(where(Requests.method(), or(is(request.method()), is(HttpMethod.PUT)))).
+                filter(where(Requests.method(), is(request.method()))).
                 headOption().
                 map(response());
     }

@@ -1,5 +1,6 @@
 package com.googlecode.waitrest;
 
+import com.googlecode.funclate.Model;
 import com.googlecode.totallylazy.Option;
 import com.googlecode.totallylazy.Strings;
 import com.googlecode.utterlyidle.Request;
@@ -15,6 +16,7 @@ import static com.googlecode.utterlyidle.RequestBuilder.get;
 import static com.googlecode.utterlyidle.RequestBuilder.put;
 import static com.googlecode.utterlyidle.ResponseBuilder.response;
 import static com.googlecode.utterlyidle.Status.OK;
+import static com.googlecode.waitrest.Renderers.stringTemplateRenderer;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -36,7 +38,7 @@ public class WaitressTest {
 
     @Test
     public void serveRequestResponseOrderWithQueryParams() {
-        Request requestWithQueryParam = get("/cheese").withQuery("type", "cheddar").build();
+        Request requestWithQueryParam = get("/cheese").query("type", "cheddar").build();
         Request requestWithoutQueryParam = get("/cheese").build();
         Response response = response(OK).entity("cheddar").build();
 
@@ -48,7 +50,7 @@ public class WaitressTest {
 
     @Test
     public void serveRequestOrder() {
-        waitress.takeOrder(put("/cheese").withHeader(CONTENT_TYPE, TEXT_PLAIN).withInput("cheese".getBytes()).build());
+        waitress.takeOrder(put("/cheese").header(CONTENT_TYPE, TEXT_PLAIN).entity("cheese").build());
 
         assertThat(waitress.serveGetOrder(get("/cheese").build()).toString(), is(response(OK).header(CONTENT_TYPE, TEXT_PLAIN).entity("cheese").build().toString()));
     }
@@ -67,7 +69,7 @@ public class WaitressTest {
         String responseWithAuthority = waitress.allOrders(some("anotherServer:4321")).entity().value().toString();
         assertThat(responseWithAuthority, not(containsString("http://someserver:1234/some/path")));
         assertThat(responseWithAuthority, containsString("http://unrelatedServer:1234/foo"));
-        String responseWithNoAuthority = waitress.allOrders(Option.<String>none()).entity().value().toString();
+        String responseWithNoAuthority = stringTemplateRenderer("all").render((Model) waitress.allOrders(Option.<String>none()).entity().value());
         assertThat(responseWithNoAuthority, containsString("http://someserver:1234/some/path"));
         assertThat(responseWithNoAuthority, containsString("<?xml version=\"1.0\" encoding=\"UTF-8\"?><feed xmlns=\"http://www.w3.org/2005/Atom\"><url>http://unrelatedServer:1234/foo</url></feed>"));
     }

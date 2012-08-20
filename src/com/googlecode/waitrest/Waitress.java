@@ -18,6 +18,7 @@ import static com.googlecode.totallylazy.proxy.Call.on;
 import static com.googlecode.utterlyidle.HttpHeaders.LOCATION;
 import static com.googlecode.utterlyidle.HttpMessageParser.parseRequest;
 import static com.googlecode.utterlyidle.HttpMessageParser.parseResponse;
+import static com.googlecode.utterlyidle.ResponseBuilder.modify;
 import static com.googlecode.utterlyidle.ResponseBuilder.response;
 import static com.googlecode.utterlyidle.Status.CREATED;
 import static com.googlecode.utterlyidle.Status.NOT_FOUND;
@@ -85,7 +86,7 @@ public class Waitress {
     public String importOrders(@FormParam("orders") String orders) {
         Sequence<String> messages = sequence(orders.trim().split(REQUEST_SEPARATOR)).filter(not(Strings.empty()));
         messages.forEach(takeOrder());
-        return messages.size()+" orders imported";
+        return messages.size() +" orders imported";
     }
 
     @GET
@@ -148,7 +149,7 @@ public class Waitress {
     @PUT
     @Path(ANY_PATH)
     public Response takeOrder(Request request) {
-        kitchen.receiveOrder(request);
+        kitchen.receiveOrder(RequestBuilder.modify(request).method(HttpMethod.GET).build());
         return created(request);
     }
 
