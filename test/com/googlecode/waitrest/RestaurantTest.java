@@ -25,13 +25,12 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 
 public class RestaurantTest {
-
     private Server server;
     private ClientHttpHandler restClient = new ClientHttpHandler();
 
     @Before
     public void setUp() throws Exception {
-        server= application(Restaurant.class).start(defaultConfiguration().port(8003));
+        server = application(Restaurant.class).start(defaultConfiguration().port(8003));
     }
 
     @After
