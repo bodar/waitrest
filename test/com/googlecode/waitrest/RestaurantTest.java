@@ -41,9 +41,9 @@ public class RestaurantTest {
     @Test
     public void serveRequestOrder() throws Exception {
         String cheeseUrl = server.uri() + "cheese";
-        Request put = put(cheeseUrl).withQuery("type", "cheddar").withHeader(CONTENT_TYPE, TEXT_PLAIN).withHeader(CONTENT_LENGTH, "6").withInput("cheese".getBytes()).build();
-        Request get = get(cheeseUrl).withQuery("type", "cheddar").build();
-        Request unknownGet = get(cheeseUrl).withQuery("type", "gouda").build();
+        Request put = put(cheeseUrl).query("type", "cheddar").header(CONTENT_TYPE, TEXT_PLAIN).header(CONTENT_LENGTH, "6").entity("cheese").build();
+        Request get = get(cheeseUrl).query("type", "cheddar").build();
+        Request unknownGet = get(cheeseUrl).query("type", "gouda").build();
         Response response = response(OK).entity("cheese").header(CONTENT_TYPE, TEXT_PLAIN).header(CONTENT_LENGTH, "6").build();
 
         restClient.handle(put);
@@ -59,11 +59,11 @@ public class RestaurantTest {
     @Test
     public void serveRequestResponseOrder_get() throws Exception {
         String cheeseUrl = server.uri() + "cheese";
-        Request request = get(cheeseUrl).withQuery("type", "cheddar").build();
-        Request unknownRequest = get(cheeseUrl).withQuery("type", "gouda").build();
+        Request request = get(cheeseUrl).query("type", "cheddar").build();
+        Request unknownRequest = get(cheeseUrl).query("type", "gouda").build();
         Response expectedResponse = response(OK).entity("cheese").header(CONTENT_TYPE, TEXT_PLAIN).header(CONTENT_LENGTH, "6").build();
 
-        restClient.handle(post(server.uri() + Waitress.WAITRESS_ORDER_PATH).withForm("request", request.toString()).withForm("response", expectedResponse.toString()).build());
+        restClient.handle(post(server.uri() + Waitress.WAITRESS_ORDER_PATH).form("request", request.toString()).form("response", expectedResponse.toString()).build());
 
         assertThat(filterDate(restClient.handle(request)), is(expectedResponse));
         assertThat(restClient.handle(unknownRequest).status(), is(Status.NOT_FOUND));
@@ -72,12 +72,12 @@ public class RestaurantTest {
     @Test
     public void serveRequestResponseOrder_post() throws Exception {
         String cheeseUrl = server.uri() + "cheese";
-        Request request = post(cheeseUrl).withForm("type", "cheddar").build();
+        Request request = post(cheeseUrl).form("type", "cheddar").build();
         System.out.println("request = " + request);
-        Request unknownRequest = post(cheeseUrl).withForm("type", "gouda").build();
+        Request unknownRequest = post(cheeseUrl).form("type", "gouda").build();
         Response expectedResponse = response(OK).entity("cheese").header(CONTENT_TYPE, TEXT_PLAIN).header(CONTENT_LENGTH, "6").build();
 
-        restClient.handle(post(server.uri() + Waitress.WAITRESS_ORDER_PATH).withForm("request", request.toString()).withForm("response", expectedResponse.toString()).build());
+        restClient.handle(post(server.uri() + Waitress.WAITRESS_ORDER_PATH).form("request", request.toString()).form("response", expectedResponse.toString()).build());
 
         assertThat(filterDate(restClient.handle(request)), is(expectedResponse));
         assertThat(restClient.handle(unknownRequest).status(), is(Status.NOT_FOUND));
@@ -86,8 +86,8 @@ public class RestaurantTest {
     @Test
     public void cannotTakeInvalidOrder() throws Exception {
         Response response = restClient.handle(post(server.uri() + Waitress.WAITRESS_ORDER_PATH).
-                withForm("request", "/pathWithNoHttpMethod HTTP/1.1").
-                withForm("response", response(NO_CONTENT).toString()).build());
+                form("request", "/pathWithNoHttpMethod HTTP/1.1").
+                form("response", response(NO_CONTENT).toString()).build());
 
         assertThat(response.status(), is(BAD_REQUEST));
         assertThat(response.toString(), containsString("Request without a valid method"));

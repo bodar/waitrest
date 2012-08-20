@@ -30,16 +30,16 @@ public class KitchenTest {
 
     @Test
     public void serveRequestResponseOrder_post() {
-        kitchen.receiveOrder(post("/test").withForm("formParam", "value").build(), response(OK).entity("test entity").build());
+        kitchen.receiveOrder(post("/test").form("formParam", "value").build(), response(OK).entity("test entity").build());
 
-        assertThat(kitchen.serve(post("/test").withForm("formParam", "value").build()).get(), is(response(OK).entity("test entity").build()));
+        assertThat(kitchen.serve(post("/test").form("formParam", "value").build()).get(), is(response(OK).entity("test entity").build()));
         assertThat(kitchen.serve(post("/test").build()).isEmpty(), is(true));
     }
 
     @Test
     public void serveRequestOrder() {
         String responseContent = "bar";
-        kitchen.receiveOrder(put("/foo").withInput(responseContent.getBytes()).build());
+        kitchen.receiveOrder(get("/foo").entity(responseContent).build());
         Response response = kitchen.serve(get("/foo").build()).get();
         assertThat(new String(response.entity().asBytes()), is(responseContent));
     }
@@ -61,7 +61,7 @@ public class KitchenTest {
     @Test
     public void ignoreExtraFormParams() {
         kitchen.receiveOrder(post("/test").build(), response(OK).entity("test entity").build());
-        assertThat(kitchen.serve(post("/test").withForm("params", "ignore").build()).get(), is(response(OK).entity("test entity").build()));
+        assertThat(kitchen.serve(post("/test").form("params", "ignore").build()).get(), is(response(OK).entity("test entity").build()));
     }
 
     @Test
@@ -72,7 +72,7 @@ public class KitchenTest {
     @Test
     public void preserveContentTypeWhenServingRequestOrder() {
         String contentType = "text/plain";
-        kitchen.receiveOrder(put("/foo").withHeader(CONTENT_TYPE, contentType).withInput("bar".getBytes()).build());
+        kitchen.receiveOrder(get("/foo").header(CONTENT_TYPE, contentType).entity("bar").build());
         Response response = kitchen.serve(get("/foo").build()).get();
         assertThat(response.headers().getValue(CONTENT_TYPE), Matchers.is(contentType));
 
@@ -80,8 +80,8 @@ public class KitchenTest {
 
     @Test
     public void serveOrderWithMatchingQueryParams() {
-        kitchen.receiveOrder(put("/foo?bar=dan").withInput("dan".getBytes()).build());
-        kitchen.receiveOrder(put("/foo?bar=tom").withInput("tom".getBytes()).build());
+        kitchen.receiveOrder(get("/foo?bar=dan").entity("dan").build());
+        kitchen.receiveOrder(get("/foo?bar=tom").entity("tom").build());
         Response response = kitchen.serve(get("/foo?bar=tom").build()).get();
         assertThat(new String(response.entity().asBytes()), Matchers.is("tom"));
     }
