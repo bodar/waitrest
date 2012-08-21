@@ -68,16 +68,4 @@ public class WaitressTest {
         
         assertThat(waitress.importOrders(orders).contains("2 orders imported"), is(true));
     }
-
-    @Test
-    public void allOrdersWithSpecifiedAuthority() throws Exception {
-        waitress.takeOrder("GET http://someserver:1234/some/path HTTP/1.1", "HTTP/1.1 200 OK\n\n<?xml version=\"1.0\" encoding=\"UTF-8\"?><feed xmlns=\"http://www.w3.org/2005/Atom\"><url>http://someserver:1234/foo</url></feed>");
-        waitress.takeOrder("GET http://someserver:1234/some/path HTTP/1.1", "HTTP/1.1 200 OK\n\n<?xml version=\"1.0\" encoding=\"UTF-8\"?><feed xmlns=\"http://www.w3.org/2005/Atom\"><url>http://unrelatedServer:1234/foo</url></feed>");
-        String responseWithAuthority = waitress.allOrders(some("anotherServer:4321")).entity().value().toString();
-        assertThat(responseWithAuthority, not(containsString("http://someserver:1234/some/path")));
-        assertThat(responseWithAuthority, containsString("http://unrelatedServer:1234/foo"));
-        String responseWithNoAuthority = stringTemplateRenderer("all").render((Model) waitress.allOrders(Option.<String>none()).entity().value());
-        assertThat(responseWithNoAuthority, containsString("http://someserver:1234/some/path"));
-        assertThat(responseWithNoAuthority, containsString("<?xml version=\"1.0\" encoding=\"UTF-8\"?><feed xmlns=\"http://www.w3.org/2005/Atom\"><url>http://unrelatedServer:1234/foo</url></feed>"));
-    }
 }
