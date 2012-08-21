@@ -15,10 +15,11 @@ import static com.googlecode.totallylazy.Predicates.not;
 import static com.googlecode.totallylazy.Sequences.sequence;
 import static com.googlecode.totallylazy.proxy.Call.method;
 import static com.googlecode.totallylazy.proxy.Call.on;
+import static com.googlecode.utterlyidle.HttpHeaders.CONTENT_TYPE;
 import static com.googlecode.utterlyidle.HttpHeaders.LOCATION;
 import static com.googlecode.utterlyidle.HttpMessageParser.parseRequest;
 import static com.googlecode.utterlyidle.HttpMessageParser.parseResponse;
-import static com.googlecode.utterlyidle.ResponseBuilder.modify;
+import static com.googlecode.utterlyidle.RequestBuilder.get;
 import static com.googlecode.utterlyidle.ResponseBuilder.response;
 import static com.googlecode.utterlyidle.Status.CREATED;
 import static com.googlecode.utterlyidle.Status.NOT_FOUND;
@@ -148,9 +149,10 @@ public class Waitress {
 
     @PUT
     @Path(ANY_PATH)
-    public Response takeOrder(Request request) {
-        kitchen.receiveOrder(RequestBuilder.modify(request).method(HttpMethod.GET).build());
-        return created(request);
+    public Response takeOrder(Request put) {
+        kitchen.receiveOrder(get(put.uri()).build(), response().header(CONTENT_TYPE, put.headers().getValue(CONTENT_TYPE)).
+                entity(put.entity().asBytes()).build());
+        return created(put);
     }
 
     private Callable1<String, Void> takeOrder() {

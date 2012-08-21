@@ -54,7 +54,14 @@ public class WaitressTest {
 
         assertThat(waitress.serveGetOrder(get("/cheese").build()).toString(), is(response(OK).header(CONTENT_TYPE, TEXT_PLAIN).entity("cheese").build().toString()));
     }
-    
+
+    @Test
+    public void putOverwrites() {
+        waitress.takeOrder(put("/cheese").header(CONTENT_TYPE, TEXT_PLAIN).entity("wensleydale").build());
+        waitress.takeOrder(put("/cheese").header(CONTENT_TYPE, TEXT_PLAIN).entity("brie").build());
+        assertThat(waitress.serveGetOrder(get("/cheese").build()).toString(), is(response(OK).header(CONTENT_TYPE, TEXT_PLAIN).entity("brie").build().toString()));
+    }
+
     @Test
     public void importOrders() throws Exception {
         String orders = Strings.toString(getClass().getResourceAsStream("export.txt"));

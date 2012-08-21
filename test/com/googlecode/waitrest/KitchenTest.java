@@ -1,8 +1,8 @@
 package com.googlecode.waitrest;
 
 import com.googlecode.totallylazy.Option;
+import com.googlecode.utterlyidle.Request;
 import com.googlecode.utterlyidle.Response;
-import com.googlecode.utterlyidle.ResponseBuilder;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matchers;
 import org.junit.Test;
@@ -39,7 +39,7 @@ public class KitchenTest {
     @Test
     public void serveRequestOrder() {
         String responseContent = "bar";
-        kitchen.receiveOrder(get("/foo").entity(responseContent).build());
+        kitchen.receiveOrder(get("/foo").build(), response().entity(responseContent).build());
         Response response = kitchen.serve(get("/foo").build()).get();
         assertThat(new String(response.entity().asBytes()), is(responseContent));
     }
@@ -72,18 +72,21 @@ public class KitchenTest {
     @Test
     public void preserveContentTypeWhenServingRequestOrder() {
         String contentType = "text/plain";
-        kitchen.receiveOrder(get("/foo").header(CONTENT_TYPE, contentType).entity("bar").build());
-        Response response = kitchen.serve(get("/foo").build()).get();
+        Request get = get("/foo").build();
+        kitchen.receiveOrder(get, response().contentType(contentType).entity("bar").build());
+        Response response = kitchen.serve(get).get();
         assertThat(response.headers().getValue(CONTENT_TYPE), Matchers.is(contentType));
 
     }
 
     @Test
     public void serveOrderWithMatchingQueryParams() {
-        kitchen.receiveOrder(get("/foo?bar=dan").entity("dan").build());
-        kitchen.receiveOrder(get("/foo?bar=tom").entity("tom").build());
-        Response response = kitchen.serve(get("/foo?bar=tom").build()).get();
-        assertThat(new String(response.entity().asBytes()), Matchers.is("tom"));
+        kitchen.receiveOrder(get("/foo?bar=dan").build(), response().entity("dan").build());
+        Request tom = get("/foo?bar=tom").entity("tom").build();
+        kitchen.receiveOrder(tom, response().entity("tom").build());
+
+        Response response = kitchen.serve(tom).get();
+        assertThat(response.entity().toString(), Matchers.is("tom"));
     }
 
     @Test
