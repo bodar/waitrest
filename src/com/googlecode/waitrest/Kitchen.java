@@ -20,12 +20,6 @@ public class Kitchen {
         return orders.put(request, response);
     }
 
-    public Response receiveOrder(Request request) {
-        return orders.put(request, ResponseBuilder.response().
-                header(CONTENT_TYPE, request.headers().getValue(CONTENT_TYPE)).
-                entity(request.entity()).build());
-    }
-
     public Option<Response> serve(Request request) {
         return sequence(orders.keySet()).
                 filter(where(Requests.path(), is(HierarchicalPath.hierarchicalPath(request.uri().path())))).
