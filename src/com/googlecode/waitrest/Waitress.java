@@ -57,29 +57,6 @@ public class Waitress {
         return model().add("orderUrl", absolute(WAITRESS_ORDER_PATH)).add("ordersUrl", absolute(WAITRESS_ORDERS_PATH)).add("getOrdersUrl", absolute(WAITRESS_GET_ORDERS_PATH));
     }
 
-    @GET
-    @Path(WAITRESS_ORDERS_PATH)
-    @Produces("text/plain")
-    @Priority(Priority.High)
-    public Response allOrders(@QueryParam("authority") final Option<String> authority) {
-        Map<Request, Response> orders = authority.isEmpty() ? kitchen.allOrders() : Maps.map(Maps.pairs(kitchen.allOrders()).map(authorityToNewAuthority(authority.get())));
-        return response(Status.OK).entity(model().add("orders", orders).add("requestSeparator", REQUEST_SEPARATOR).add("responseSeparator", RESPONSE_SEPARATOR)).build();
-    }
-
-    private Callable1<Pair<Request, Response>, Pair<Request, Response>> authorityToNewAuthority(final String newAuthority) {
-        return new Callable1<Pair<Request, Response>, Pair<Request, Response>>() {
-            @Override
-            public Pair<Request, Response> call(Pair<Request, Response> order) throws Exception {
-                RequestBuilder request = RequestBuilder.modify(order.first());
-                Response originalResponse = HttpMessageParser.parseResponse(order.second().toString());
-                ResponseBuilder response = ResponseBuilder.modify(originalResponse);
-                response.entity(originalResponse.entity().toString().replaceAll(request.uri().authority(), newAuthority));
-                request.uri(request.uri().authority(newAuthority));
-                return Pair.pair(request.build(), response.build());
-            }
-        };
-    }
-
     @POST
     @Path(WAITRESS_IMPORT_PATH)
     @Produces("text/plain")

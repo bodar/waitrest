@@ -53,6 +53,14 @@ public class KitchenTest {
     }
 
     @Test
+    public void overridePreviousOrderEvenWhenUriIsFullyQualified() {
+        kitchen.receiveOrder(get("http://localhost:8899/test").build(), response(OK).entity("test entity").build());
+        kitchen.receiveOrder(get("/test").build(), response(OK).entity("new test entity").build());
+
+        assertThat(kitchen.serve(get("http://localhost:8899/test").build()).get(), is(response(OK).entity("new test entity").build()));
+    }
+
+    @Test
     public void doNotIgnoreExtraQueryParams() {
         kitchen.receiveOrder(get("/test").build(), response(OK).entity("test entity").build());
         assertThat(kitchen.serve(get("/test?param=doNotIgnore").build()).isEmpty(), is(true));
