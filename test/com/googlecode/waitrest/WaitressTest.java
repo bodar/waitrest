@@ -68,4 +68,13 @@ public class WaitressTest {
         
         assertThat(waitress.importOrders(orders).contains("2 orders imported"), is(true));
     }
+
+    @Test
+    public void allOrders() throws Exception {
+        waitress.takeOrder("GET http://someserver:1234/some/path HTTP/1.1", "HTTP/1.1 200 OK\n\n<?xml version=\"1.0\" encoding=\"UTF-8\"?><feed xmlns=\"http://www.w3.org/2005/Atom\"><url>http://someserver:1234/foo</url></feed>");
+        waitress.takeOrder("GET http://someserver:1234/some/path HTTP/1.1", "HTTP/1.1 200 OK\n\n<?xml version=\"1.0\" encoding=\"UTF-8\"?><feed xmlns=\"http://www.w3.org/2005/Atom\"><url>http://unrelatedServer:1234/foo</url></feed>");
+        String response = stringTemplateRenderer("all").render((Model) waitress.allOrders().entity().value());
+        assertThat(response, containsString("GET /some/path"));
+        assertThat(response, containsString("<?xml version=\"1.0\" encoding=\"UTF-8\"?><feed xmlns=\"http://www.w3.org/2005/Atom\"><url>http://unrelatedServer:1234/foo</url></feed>"));
+    }
 }

@@ -57,6 +57,15 @@ public class Waitress {
         return model().add("orderUrl", absolute(WAITRESS_ORDER_PATH)).add("ordersUrl", absolute(WAITRESS_ORDERS_PATH)).add("getOrdersUrl", absolute(WAITRESS_GET_ORDERS_PATH));
     }
 
+    @GET
+    @Path(WAITRESS_ORDERS_PATH)
+    @Produces("text/plain")
+    @Priority(Priority.High)
+    public Response allOrders() {
+        Map<Request, Response> orders = kitchen.allOrders();
+        return response(Status.OK).entity(model().add("orders", orders).add("requestSeparator", REQUEST_SEPARATOR).add("responseSeparator", RESPONSE_SEPARATOR)).build();
+    }
+
     @POST
     @Path(WAITRESS_IMPORT_PATH)
     @Produces("text/plain")
