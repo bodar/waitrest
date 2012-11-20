@@ -33,20 +33,19 @@ import static com.googlecode.waitrest.Waitress.WAITRESS_ORDER_PATH;
 
 public class Manager implements ResourcesModule, ApplicationScopedModule, ResponseHandlersModule {
     @Override
-    public Module addPerApplicationObjects(Container container) {
+    public Container addPerApplicationObjects(Container container) {
         container.add(Kitchen.class);
-        return this;
+        return container;
     }
 
     @Override
-    public Module addResources(Resources resources) {
+    public Resources addResources(Resources resources) {
         resources.add(annotatedClass(Waitress.class));
-        return this;
+        return resources;
     }
 
-
     @Override
-    public Module addResponseHandlers(ResponseHandlers handlers) {
+    public ResponseHandlers addResponseHandlers(ResponseHandlers handlers) {
         handlers.add(method(GET).and(status(Status.OK).and(path(WAITRESS_ORDER_PATH))), renderer(fileRenderer("menu.html")));
         handlers.add(method(GET).and(status(Status.OK)).and(path(WAITRESS_GET_ORDERS_PATH)), renderer(stringTemplateRenderer("gets")));
         handlers.add(method(GET).and(status(Status.OK)).and(path(WAITRESS_ORDERS_PATH)), renderer(stringTemplateRenderer("all")));
@@ -55,7 +54,7 @@ public class Manager implements ResourcesModule, ApplicationScopedModule, Respon
         handlers.add(method(POST).and(status(Status.OK)).and(path(WAITRESS_ORDER_PATH)).and(status(CREATED)).and(modelContainsHttpMethod(GET)), renderer(fileRenderer("get.html")));
         handlers.add(method(POST).and(status(Status.OK)).and(path(WAITRESS_ORDER_PATH)).and(status(CREATED)).and(modelContainsHttpMethod(POST)), renderer(stringTemplateRenderer("post")));
         handlers.add(method(POST).and(status(Status.OK)).and(path(WAITRESS_ORDER_PATH)).and(status(CREATED)), renderer(fileRenderer("notGetOrPost.html")));
-        return this;
+        return handlers;
     }
 
     private Predicate<? super Pair<Request, Response>> modelContains(final String key) {
@@ -75,5 +74,4 @@ public class Manager implements ResourcesModule, ApplicationScopedModule, Respon
             }
         };
     }
-
 }
