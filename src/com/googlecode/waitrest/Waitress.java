@@ -2,13 +2,30 @@ package com.googlecode.waitrest;
 
 
 import com.googlecode.funclate.Model;
-import com.googlecode.totallylazy.*;
-import com.googlecode.utterlyidle.*;
-import com.googlecode.utterlyidle.annotations.*;
+import com.googlecode.totallylazy.Callable1;
+import com.googlecode.totallylazy.Callables;
+import com.googlecode.totallylazy.Option;
+import com.googlecode.totallylazy.Pair;
+import com.googlecode.totallylazy.Sequence;
+import com.googlecode.totallylazy.Strings;
+import com.googlecode.totallylazy.Uri;
+import com.googlecode.utterlyidle.Redirector;
+import com.googlecode.utterlyidle.Request;
+import com.googlecode.utterlyidle.Requests;
+import com.googlecode.utterlyidle.Response;
+import com.googlecode.utterlyidle.Status;
+import com.googlecode.utterlyidle.annotations.FormParam;
+import com.googlecode.utterlyidle.annotations.GET;
+import com.googlecode.utterlyidle.annotations.HttpMethod;
+import com.googlecode.utterlyidle.annotations.POST;
+import com.googlecode.utterlyidle.annotations.PUT;
+import com.googlecode.utterlyidle.annotations.Path;
+import com.googlecode.utterlyidle.annotations.Priority;
+import com.googlecode.utterlyidle.annotations.Produces;
 
 import java.util.Map;
 
-import static com.googlecode.funclate.Model.model;
+import static com.googlecode.funclate.Model.immutable.model;
 import static com.googlecode.totallylazy.Callables.first;
 import static com.googlecode.totallylazy.Pair.pair;
 import static com.googlecode.totallylazy.Predicates.not;
@@ -73,7 +90,7 @@ public class Waitress {
     public String importOrders(@FormParam("orders") String orders) {
         Sequence<String> messages = sequence(orders.trim().split(REQUEST_SEPARATOR)).filter(not(Strings.empty()));
         messages.forEach(takeOrder());
-        return messages.size() +" orders imported";
+        return messages.size() + " orders imported";
     }
 
     @GET
@@ -120,10 +137,10 @@ public class Waitress {
 
     private Model menuPageBaseModel(String req, String resp) {
         return model().add("orderUrl", absolute(WAITRESS_ORDER_PATH)).
-                       add("ordersUrl", absolute(WAITRESS_ORDERS_PATH)).
-                       add("getOrdersUrl", absolute(WAITRESS_GET_ORDERS_PATH)).
-                       add("request", req).
-                       add("response", resp);
+                add("ordersUrl", absolute(WAITRESS_ORDERS_PATH)).
+                add("getOrdersUrl", absolute(WAITRESS_GET_ORDERS_PATH)).
+                add("request", req).
+                add("response", resp);
     }
 
     @POST
@@ -178,7 +195,7 @@ public class Waitress {
                 add("url", request.uri().toString()).
                 add("method", request.method());
         if (request.method().equalsIgnoreCase(HttpMethod.POST))
-            model.add("formParameters", sequence(Requests.form(request)).map(first(String.class)).toList());
+            model = model.add("formParameters", sequence(Requests.form(request)).map(first(String.class)).toList());
 
         return response(CREATED).header(LOCATION, request.uri().toString()).entity(model).build();
     }
