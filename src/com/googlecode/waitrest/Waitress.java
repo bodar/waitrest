@@ -25,7 +25,7 @@ import com.googlecode.utterlyidle.annotations.Produces;
 
 import java.util.Map;
 
-import static com.googlecode.funclate.Model.immutable.model;
+import static com.googlecode.funclate.Model.persistent.model;
 import static com.googlecode.totallylazy.Callables.first;
 import static com.googlecode.totallylazy.Pair.pair;
 import static com.googlecode.totallylazy.Predicates.not;

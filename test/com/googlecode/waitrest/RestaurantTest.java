@@ -53,7 +53,7 @@ public class RestaurantTest {
     }
 
     private Response filterDate(Response response) {
-        return ResponseBuilder.modify(response).removeHeaders(HttpHeaders.DATE).build();
+        return ResponseBuilder.modify(response).removeHeaders(HttpHeaders.DATE).removeHeaders(HttpHeaders.LAST_MODIFIED).build();
     }
 
     @Test

@@ -1,5 +1,7 @@
 package com.googlecode.waitrest;
 
+import com.googlecode.totallylazy.Closeables;
+import com.googlecode.totallylazy.Uri;
 import com.googlecode.utterlyidle.BasePath;
 import com.googlecode.utterlyidle.httpserver.RestServer;
 
@@ -31,16 +33,16 @@ public class Waitrest implements Closeable {
     }
 
     public void close() {
-        try {
-            application.close();
-            restServer.close();
-        } catch (IOException e) {
-            throw new RuntimeException("Couldn't stop Waitrest: " + e.getMessage());
-        }
+        Closeables.safeClose(application);
+        Closeables.safeClose(restServer);
     }
 
     public URL getURL() {
-        return restServer.uri().toURL();
+        return uri().toURL();
+    }
+
+    public Uri uri() {
+        return restServer.uri();
     }
 
 }
