@@ -1,0 +1,12 @@
+---------- REQUEST ------------
+GET /a HTTP/1.1
+Content-Length: 0
+
+
+---------- RESPONSE -----------
+HTTP/1.1 200 OK
+Content-Type: text/plain
+
+Hello
+
+Joe
