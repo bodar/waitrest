@@ -12,8 +12,8 @@
                 <rule pattern="com.googlecode.totallylazy.**.*" result="com.googlecode.waitrest.internal.totallylazy.@1.$@2"/>
                 <rule pattern="com.googlecode.funclate.*"    result="com.googlecode.waitrest.internal.funclate.$@1"/>
                 <rule pattern="com.googlecode.funclate.**.*"    result="com.googlecode.waitrest.internal.funclate.@1.$@2"/>
-                <rule pattern="com.googlecode.utterlyidle.*" result="com.googlecode.waitrest.internal.utterllyidle.$@1"/>
-                <rule pattern="com.googlecode.utterlyidle.**.*" result="com.googlecode.waitrest.internal.utterllyidle.@1.$@2"/>
+                <rule pattern="com.googlecode.utterlyidle.*" result="com.googlecode.waitrest.internal.utterlyidle.@1"/>
+                <rule pattern="com.googlecode.utterlyidle.**.*" result="com.googlecode.waitrest.internal.utterlyidle.@1.@2"/>
                 <rule pattern="com.googlecode.yadic.*"       result="com.googlecode.waitrest.internal.yadic.@1"/>
                 <rule pattern="com.googlecode.yadic.**.*"       result="com.googlecode.waitrest.internal.yadic.@1.$@2"/>
             </jarjar>
