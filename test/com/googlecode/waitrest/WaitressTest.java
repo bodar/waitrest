@@ -3,10 +3,7 @@ package com.googlecode.waitrest;
 import com.googlecode.funclate.Model;
 import com.googlecode.totallylazy.Option;
 import com.googlecode.totallylazy.Strings;
-import com.googlecode.utterlyidle.Request;
-import com.googlecode.utterlyidle.Response;
-import com.googlecode.utterlyidle.ResponseBuilder;
-import com.googlecode.utterlyidle.Status;
+import com.googlecode.utterlyidle.*;
 import org.junit.Test;
 
 import static com.googlecode.totallylazy.Some.some;
@@ -67,6 +64,14 @@ public class WaitressTest {
         String orders = Strings.toString(getClass().getResourceAsStream("export.txt"));
         
         assertThat(waitress.importOrders(orders).contains("2 orders imported"), is(true));
+    }
+
+    @Test
+    public void preservesLineBreaks() throws Exception {
+        String orders = Strings.toString(getClass().getResourceAsStream("linebreaks.txt"));
+
+        waitress.importOrders(orders);
+        assertThat(waitress.serveGetOrder(RequestBuilder.get("/a").build()).entity().toString(), is("Hello\n\nJoe"));
     }
 
     @Test
