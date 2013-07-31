@@ -9,6 +9,8 @@ import com.googlecode.totallylazy.Pair;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.Strings;
 import com.googlecode.totallylazy.Uri;
+import com.googlecode.totallylazy.regex.Matches;
+import com.googlecode.totallylazy.regex.Regex;
 import com.googlecode.utterlyidle.Redirector;
 import com.googlecode.utterlyidle.Request;
 import com.googlecode.utterlyidle.Requests;
@@ -24,6 +26,8 @@ import com.googlecode.utterlyidle.annotations.Priority;
 import com.googlecode.utterlyidle.annotations.Produces;
 
 import java.util.Map;
+import java.util.regex.MatchResult;
+import java.util.regex.Pattern;
 
 import static com.googlecode.funclate.Model.persistent.model;
 import static com.googlecode.totallylazy.Callables.first;
@@ -88,7 +92,7 @@ public class Waitress {
     @Produces("text/plain")
     @Priority(Priority.High)
     public String importOrders(@FormParam("orders") String orders) {
-        Sequence<String> messages = sequence(orders.trim().split(REQUEST_SEPARATOR)).filter(not(Strings.empty()));
+        Sequence<String> messages = sequence(orders.split(REQUEST_SEPARATOR)).filter(not(Strings.empty()));
         messages.forEach(takeOrder());
         return messages.size() + " orders imported";
     }
@@ -162,8 +166,12 @@ public class Waitress {
         return new Callable1<String, Void>() {
             @Override
             public Void call(String requestAndResponse) throws Exception {
-                Sequence<String> requestAndResponseSequence = sequence(requestAndResponse.trim().split(RESPONSE_SEPARATOR));
-                kitchen.receiveOrder(parseRequest(requestAndResponseSequence.first().trim()), parseResponse(requestAndResponseSequence.second().trim()));
+                Sequence<String> requestAndResponseSequence = sequence(requestAndResponse.split(RESPONSE_SEPARATOR));
+                Matches matches = Regex.regex("^\n(.*)\\n{4}$", Pattern.DOTALL).findMatches(requestAndResponseSequence.second());
+                if(matches.isEmpty()) {
+                    throw new IllegalArgumentException("Request response not in expected waitrest format: " + requestAndResponseSequence.second());
+                }
+                kitchen.receiveOrder(parseRequest(requestAndResponseSequence.first().trim()), parseResponse(matches.head().group(1)));
                 return null;
             }
         };
