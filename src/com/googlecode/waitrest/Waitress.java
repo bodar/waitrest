@@ -167,7 +167,7 @@ public class Waitress {
             @Override
             public Void call(String requestAndResponse) throws Exception {
                 Sequence<String> requestAndResponseSequence = sequence(requestAndResponse.split(RESPONSE_SEPARATOR));
-                Matches matches = Regex.regex("^\n(.*)\\n{4}$", Pattern.DOTALL).findMatches(requestAndResponseSequence.second());
+                Matches matches = Regex.regex("^[\r\n]{1,2}(.*)[\r\n]{3,6}$", Pattern.DOTALL).findMatches(requestAndResponseSequence.second());
                 if(matches.isEmpty()) {
                     throw new IllegalArgumentException("Request response not in expected waitrest format: " + requestAndResponseSequence.second());
                 }
