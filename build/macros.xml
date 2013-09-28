@@ -7,7 +7,9 @@
             <property name="release.no.libs.jar" value="${artifacts}/${release.name}-nolibs.jar"/>
             <jarjar jarfile="${release.no.libs.jar}">
                 <zipfileset src="${release.jar.path}"/>
-                <zipgroupfileset dir="${build.dependencies.dir}" includes="totallylazy-*.jar, funclate-*.jar, utterlyidle-*.jar, yadic-*.jar"/>
+                <zipgroupfileset dir="${build.dependencies.dir}"
+                                 includes="totallylazy-*.jar, funclate-*.jar, utterlyidle-*.jar, yadic-*.jar"
+                                 excludes="*-sources.jar"/>
                 <rule pattern="com.googlecode.totallylazy.*" result="com.googlecode.waitrest.internal.totallylazy.$@1"/>
                 <rule pattern="com.googlecode.totallylazy.**.*" result="com.googlecode.waitrest.internal.totallylazy.@1.$@2"/>
                 <rule pattern="com.googlecode.funclate.*"    result="com.googlecode.waitrest.internal.funclate.$@1"/>
