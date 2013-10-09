@@ -1,24 +1,22 @@
 package com.googlecode.waitrest;
 
-import com.googlecode.totallylazy.Callable1;
-import com.googlecode.totallylazy.Maps;
-import com.googlecode.totallylazy.Option;
-import com.googlecode.totallylazy.Pair;
-import com.googlecode.totallylazy.Predicate;
+import com.googlecode.totallylazy.*;
+import com.googlecode.utterlyidle.QueryParameters;
 import com.googlecode.utterlyidle.Request;
 import com.googlecode.utterlyidle.Requests;
 import com.googlecode.utterlyidle.Response;
 import com.googlecode.utterlyidle.io.HierarchicalPath;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.googlecode.totallylazy.Maps.pairs;
-import static com.googlecode.totallylazy.Predicates.is;
-import static com.googlecode.totallylazy.Predicates.subsetOf;
-import static com.googlecode.totallylazy.Predicates.where;
+import static com.googlecode.totallylazy.Predicates.*;
 import static com.googlecode.totallylazy.Sequences.sequence;
 import static com.googlecode.utterlyidle.RequestBuilder.modify;
+import static com.googlecode.utterlyidle.Requests.query;
 
 public class Kitchen {
     private Map<Request, Response> orders = new ConcurrentHashMap<Request, Response>();
@@ -31,10 +29,26 @@ public class Kitchen {
         return sequence(orders.keySet()).
                 filter(where(Requests.path(), is(HierarchicalPath.hierarchicalPath(request.uri().path())))).
                 filter(where(Requests.form(), subsetOf(Requests.form(request)))).
-                filter(where(Requests.query(), is(Requests.query(request)))).
+                filter(where(queryAsUnSortedMap(), is(queryAsUnSortedMap(request)))).
                 filter(where(Requests.method(), is(request.method()))).
                 headOption().
                 map(response());
+    }
+
+    private static Callable1<Request, Map<String, List<String>>> queryAsUnSortedMap() {
+        return new Callable1<Request, Map<String, List<String>>>() {
+            public Map<String, List<String>> call(Request request) throws Exception {
+                return queryParametersToUnsortedMap(query(request));
+            }
+        };
+    }
+
+    private static Map<String, List<String>> queryAsUnSortedMap(Request request) {
+        return queryParametersToUnsortedMap(QueryParameters.parse(request.uri().query()));
+    }
+
+    private static Map<String, List<String>> queryParametersToUnsortedMap(QueryParameters queryParameters) {
+        return Maps.multiMap(new HashMap<String, List<String>>(), queryParameters);
     }
 
     public Map<Request, Response> allOrders(String orderType) {
