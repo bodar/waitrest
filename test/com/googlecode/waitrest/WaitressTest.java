@@ -1,10 +1,13 @@
 package com.googlecode.waitrest;
 
 import com.googlecode.funclate.Model;
-import com.googlecode.totallylazy.Option;
+import com.googlecode.totallylazy.Callable1;
+import com.googlecode.totallylazy.Predicate;
 import com.googlecode.totallylazy.Strings;
 import com.googlecode.utterlyidle.*;
 import org.junit.Test;
+
+import java.util.concurrent.ConcurrentHashMap;
 
 import static com.googlecode.totallylazy.Some.some;
 import static com.googlecode.utterlyidle.HttpHeaders.CONTENT_TYPE;
@@ -20,7 +23,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.StringContains.containsString;
 
 public class WaitressTest {
-    private Kitchen kitchen = new Kitchen();
+    private Kitchen kitchen = Kitchen.kitchen(CookBook.create());
     private Waitress waitress = new Waitress(kitchen, null);
 
     @Test

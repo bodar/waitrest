@@ -1,17 +1,25 @@
 package com.googlecode.waitrest;
 
+import com.googlecode.totallylazy.Callable1;
+import com.googlecode.totallylazy.Characters;
 import com.googlecode.totallylazy.Option;
+import com.googlecode.totallylazy.Predicate;
+import com.googlecode.utterlyidle.Entity;
 import com.googlecode.utterlyidle.Request;
 import com.googlecode.utterlyidle.Response;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 
+import java.util.concurrent.ConcurrentHashMap;
+
 import static com.googlecode.totallylazy.Option.none;
 import static com.googlecode.utterlyidle.HttpHeaders.CONTENT_TYPE;
+import static com.googlecode.utterlyidle.MediaType.APPLICATION_FORM_URLENCODED;
+import static com.googlecode.utterlyidle.MediaType.APPLICATION_SVG_XML;
+import static com.googlecode.utterlyidle.MediaType.TEXT_PLAIN;
 import static com.googlecode.utterlyidle.RequestBuilder.get;
 import static com.googlecode.utterlyidle.RequestBuilder.post;
-import static com.googlecode.utterlyidle.RequestBuilder.put;
 import static com.googlecode.utterlyidle.ResponseBuilder.response;
 import static com.googlecode.utterlyidle.Status.NO_CONTENT;
 import static com.googlecode.utterlyidle.Status.OK;
@@ -19,7 +27,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class KitchenTest {
-    private Kitchen kitchen = new Kitchen();
+    private Kitchen kitchen = Kitchen.kitchen(CookBook.create());
 
     @Test
     public void serveRequestResponseOrder_get() {
@@ -34,6 +42,23 @@ public class KitchenTest {
 
         assertThat(kitchen.serve(post("/test").form("formParam", "value").build()).get(), is(response(OK).entity("test entity").build()));
         assertThat(kitchen.serve(post("/test").build()).isEmpty(), is(true));
+    }
+
+    @Test
+    public void serveRequestResponseOrder_post_withContentTypePredicate() {
+        CookBook cookbook = CookBook.create().recipe(TEXT_PLAIN, new CookBook.Recipe() {
+            @Override
+            public boolean matches(Entity a, Entity b) {
+                return a.toString().equals(b.toString());
+            }
+        });
+        Kitchen kitchen = Kitchen.kitchen(cookbook);
+        kitchen.receiveOrder(post("/test").contentType(TEXT_PLAIN).entity("I did this!").build(), response(OK).entity("test entity").build());
+
+        assertThat(kitchen.serve(post("/test").contentType(TEXT_PLAIN).entity("I did this!").build()).get(), is(response(OK).entity("test entity").build()));
+        assertThat(kitchen.serve(post("/test").contentType(TEXT_PLAIN).build()).isEmpty(), is(true));
+        assertThat(kitchen.serve(post("/test").contentType(APPLICATION_SVG_XML).entity("I did this!").build()).isEmpty(), is(true));
+        assertThat(kitchen.serve(post("/test").entity("I did this!").build()).isEmpty(), is(true));
     }
 
     @Test
@@ -67,8 +92,14 @@ public class KitchenTest {
     }
 
     @Test
+    public void contentTypeIgnoresCharset() {
+        kitchen.receiveOrder(post("/test").contentType(APPLICATION_FORM_URLENCODED + "; charset=" + Characters.UTF16).build(), response(OK).entity("test entity").build());
+        assertThat(kitchen.serve(post("/test").form("params", "ignore").build()).get(), is(response(OK).entity("test entity").build()));
+    }
+
+    @Test
     public void ignoreExtraFormParams() {
-        kitchen.receiveOrder(post("/test").build(), response(OK).entity("test entity").build());
+        kitchen.receiveOrder(post("/test").contentType(APPLICATION_FORM_URLENCODED).build(), response(OK).entity("test entity").build());
         assertThat(kitchen.serve(post("/test").form("params", "ignore").build()).get(), is(response(OK).entity("test entity").build()));
     }
 

@@ -2,7 +2,9 @@ package com.googlecode.waitrest;
 
 import com.googlecode.totallylazy.Closeables;
 import com.googlecode.totallylazy.Uri;
+import com.googlecode.utterlyidle.Application;
 import com.googlecode.utterlyidle.BasePath;
+import com.googlecode.utterlyidle.Server;
 import com.googlecode.utterlyidle.httpserver.RestServer;
 
 import java.io.Closeable;
@@ -43,6 +45,14 @@ public class Waitrest implements Closeable {
 
     public Uri uri() {
         return restServer.uri();
+    }
+
+    public Server server() {
+        return restServer;
+    }
+
+    public Application application() {
+        return application;
     }
 
 }
