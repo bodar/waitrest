@@ -9,12 +9,9 @@ import com.googlecode.utterlyidle.Response;
 import com.googlecode.utterlyidle.Status;
 import com.googlecode.utterlyidle.handlers.ResponseHandlers;
 import com.googlecode.utterlyidle.modules.ApplicationScopedModule;
-import com.googlecode.utterlyidle.modules.Module;
 import com.googlecode.utterlyidle.modules.ResourcesModule;
 import com.googlecode.utterlyidle.modules.ResponseHandlersModule;
 import com.googlecode.yadic.Container;
-
-import javax.net.ssl.SSLEngineResult;
 
 import static com.googlecode.utterlyidle.PathMatcher.path;
 import static com.googlecode.utterlyidle.Requests.method;
@@ -27,21 +24,18 @@ import static com.googlecode.utterlyidle.annotations.HttpMethod.POST;
 import static com.googlecode.utterlyidle.handlers.RenderingResponseHandler.renderer;
 import static com.googlecode.waitrest.Renderers.fileRenderer;
 import static com.googlecode.waitrest.Renderers.stringTemplateRenderer;
-import static com.googlecode.waitrest.Waitress.WAITRESS_GET_ORDERS_PATH;
-import static com.googlecode.waitrest.Waitress.WAITRESS_ORDERS_PATH;
-import static com.googlecode.waitrest.Waitress.WAITRESS_ORDER_PATH;
+import static com.googlecode.waitrest.Waitress.*;
 
 public class Manager implements ResourcesModule, ApplicationScopedModule, ResponseHandlersModule {
     @Override
     public Container addPerApplicationObjects(Container container) {
-        container.add(Kitchen.class);
-        return container;
+        return container.add(Kitchen.class)
+                .addInstance(CookBook.class, CookBook.create());
     }
 
     @Override
     public Resources addResources(Resources resources) {
-        resources.add(annotatedClass(Waitress.class));
-        return resources;
+        return resources.add(annotatedClass(Waitress.class));
     }
 
     @Override
