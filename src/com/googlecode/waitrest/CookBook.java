@@ -5,32 +5,42 @@ import com.googlecode.totallylazy.collections.HashTreeMap;
 import com.googlecode.totallylazy.collections.PersistentMap;
 import com.googlecode.totallylazy.regex.Regex;
 import com.googlecode.utterlyidle.Entity;
-import com.googlecode.utterlyidle.FormParameters;
+import com.googlecode.utterlyidle.QueryParameters;
 import com.googlecode.utterlyidle.Request;
 
-import static com.googlecode.totallylazy.Predicates.subsetOf;
 import static com.googlecode.utterlyidle.HttpHeaders.CONTENT_TYPE;
 import static com.googlecode.utterlyidle.MediaType.APPLICATION_FORM_URLENCODED;
 import static com.googlecode.utterlyidle.MediaType.APPLICATION_JSON;
 
 public class CookBook {
-    private final PersistentMap<String, Recipe> recipies;
+    private final PersistentMap<String, EntityRecipe> entityRecipies;
+    private final QueryParametersRecipe queryParametersRecipe;
 
-    private CookBook(PersistentMap<String, Recipe> recipies) {
-        this.recipies = recipies;
+    private CookBook(PersistentMap<String, EntityRecipe> entityRecipies, QueryParametersRecipe queryParametersRecipe) {
+        this.entityRecipies = entityRecipies;
+        this.queryParametersRecipe = queryParametersRecipe;
+    }
+
+    public Predicate<QueryParameters> correctForQueryParameters(final QueryParameters toMatch) {
+        return new Predicate<QueryParameters>() {
+            @Override
+            public boolean matches(QueryParameters other) {
+                return queryParametersRecipe.matches(toMatch, other);
+            }
+        };
     }
 
     public Predicate<Entity> correctForContentType(final Request request) {
         return request.headers().valueOption(CONTENT_TYPE).flatMap(new Callable1<String, Option<Predicate<Entity>>>() {
             @Override
             public Option<Predicate<Entity>> call(String contentType) throws Exception {
-                return recipies.lookup(stripCharset(contentType)).map(new Callable1<Recipe, Predicate<Entity>>() {
+                return entityRecipies.lookup(stripCharset(contentType)).map(new Callable1<EntityRecipe, Predicate<Entity>>() {
                     @Override
-                    public Predicate<Entity> call(final Recipe recipe) throws Exception {
+                    public Predicate<Entity> call(final EntityRecipe entityRecipe) throws Exception {
                         return new Predicate<Entity>() {
                             @Override
                             public boolean matches(Entity other) {
-                                return recipe.matches(request.entity(), other);
+                                return entityRecipe.matches(request.entity(), other);
                             }
                         };
                     }
@@ -49,17 +59,25 @@ public class CookBook {
     }
 
     public static CookBook create() {
-        PersistentMap<String, Recipe> recipes = HashTreeMap.<String, Recipe>hashTreeMap().
+        PersistentMap<String, EntityRecipe> defaultEntityRecipes = HashTreeMap.<String, EntityRecipe>hashTreeMap().
                 insert(APPLICATION_FORM_URLENCODED, Recipies.form).
                 insert(APPLICATION_JSON, Recipies.json);
-        return new CookBook(recipes);
+        QueryParametersRecipe defaultQueryParametersRecipe =
+                Recipies.equalQueryParameters;
+        return new CookBook(defaultEntityRecipes, defaultQueryParametersRecipe);
     }
 
-    public CookBook recipe(String contentType, Recipe recipe){
-        return new CookBook(recipies.insert(contentType, recipe));
+    public CookBook recipe(String contentType, EntityRecipe entityRecipe) {
+        return new CookBook(entityRecipies.insert(contentType, entityRecipe), queryParametersRecipe);
     }
 
-    interface Recipe extends BinaryPredicate<Entity> {
+    public CookBook queryParametersRecipe(QueryParametersRecipe recipe){
+        return new CookBook(entityRecipies, recipe);
+    }
 
+    public interface EntityRecipe extends BinaryPredicate<Entity> {
+    }
+
+    public interface QueryParametersRecipe extends BinaryPredicate<QueryParameters> {
     }
 }

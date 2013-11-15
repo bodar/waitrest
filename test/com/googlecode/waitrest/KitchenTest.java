@@ -1,17 +1,13 @@
 package com.googlecode.waitrest;
 
-import com.googlecode.totallylazy.Callable1;
 import com.googlecode.totallylazy.Characters;
 import com.googlecode.totallylazy.Option;
-import com.googlecode.totallylazy.Predicate;
 import com.googlecode.utterlyidle.Entity;
 import com.googlecode.utterlyidle.Request;
 import com.googlecode.utterlyidle.Response;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matchers;
 import org.junit.Test;
-
-import java.util.concurrent.ConcurrentHashMap;
 
 import static com.googlecode.totallylazy.Option.none;
 import static com.googlecode.utterlyidle.HttpHeaders.CONTENT_TYPE;
@@ -46,7 +42,7 @@ public class KitchenTest {
 
     @Test
     public void serveRequestResponseOrder_post_withContentTypePredicate() {
-        CookBook cookbook = CookBook.create().recipe(TEXT_PLAIN, new CookBook.Recipe() {
+        CookBook cookbook = CookBook.create().recipe(TEXT_PLAIN, new CookBook.EntityRecipe() {
             @Override
             public boolean matches(Entity a, Entity b) {
                 return a.toString().equals(b.toString());

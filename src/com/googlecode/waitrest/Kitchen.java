@@ -5,8 +5,6 @@ import com.googlecode.totallylazy.regex.Regex;
 import com.googlecode.utterlyidle.*;
 import com.googlecode.utterlyidle.io.HierarchicalPath;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -16,7 +14,6 @@ import static com.googlecode.totallylazy.Predicates.where;
 import static com.googlecode.totallylazy.Sequences.sequence;
 import static com.googlecode.utterlyidle.HttpHeaders.CONTENT_TYPE;
 import static com.googlecode.utterlyidle.RequestBuilder.modify;
-import static com.googlecode.utterlyidle.Requests.query;
 
 public class Kitchen {
     private final Map<Request, Response> orders = new ConcurrentHashMap<Request, Response>();
@@ -37,7 +34,7 @@ public class Kitchen {
     public Option<Response> serve(Request request) {
         return sequence(orders.keySet()).
                 filter(where(Requests.path(), is(HierarchicalPath.hierarchicalPath(request.uri().path())))).
-                filter(where(queryAsUnSortedMap(), is(queryAsUnSortedMap(request)))).
+                filter(where(query(), is(cookBook.correctForQueryParameters(Requests.query(request))))).
                 filter(where(Requests.method(), is(request.method()))).
                 filter(where(header(CONTENT_TYPE), is(stripCharset(request.headers().getValue(CONTENT_TYPE))))).
                 filter(where(entity(), is(cookBook.correctForContentType(request)))).
@@ -67,20 +64,13 @@ public class Kitchen {
         };
     }
 
-    private static Callable1<Request, Map<String, List<String>>> queryAsUnSortedMap() {
-        return new Callable1<Request, Map<String, List<String>>>() {
-            public Map<String, List<String>> call(Request request) throws Exception {
-                return queryParametersToUnsortedMap(query(request));
+    private Callable1<Request, QueryParameters> query() {
+        return new Callable1<Request, QueryParameters>() {
+            @Override
+            public QueryParameters call(Request request) throws Exception {
+                return Requests.query(request);
             }
         };
-    }
-
-    private static Map<String, List<String>> queryAsUnSortedMap(Request request) {
-        return queryParametersToUnsortedMap(QueryParameters.parse(request.uri().query()));
-    }
-
-    private static Map<String, List<String>> queryParametersToUnsortedMap(QueryParameters queryParameters) {
-        return Maps.multiMap(new HashMap<String, List<String>>(), queryParameters);
     }
 
     public Map<Request, Response> allOrders(String orderType) {
