@@ -1,30 +1,31 @@
 package com.googlecode.waitrest;
 
 import com.googlecode.funclate.Model;
-import com.googlecode.totallylazy.Callable1;
-import com.googlecode.totallylazy.Predicate;
 import com.googlecode.totallylazy.Strings;
+import com.googlecode.totallylazy.Uri;
 import com.googlecode.utterlyidle.*;
+import com.googlecode.utterlyidle.annotations.AnnotatedBindings;
 import org.junit.Test;
 
-import java.util.concurrent.ConcurrentHashMap;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
-import static com.googlecode.totallylazy.Some.some;
 import static com.googlecode.utterlyidle.HttpHeaders.CONTENT_TYPE;
 import static com.googlecode.utterlyidle.MediaType.TEXT_PLAIN;
-import static com.googlecode.utterlyidle.RequestBuilder.get;
-import static com.googlecode.utterlyidle.RequestBuilder.put;
+import static com.googlecode.utterlyidle.RequestBuilder.*;
 import static com.googlecode.utterlyidle.ResponseBuilder.response;
 import static com.googlecode.utterlyidle.Status.OK;
+import static com.googlecode.waitrest.Fixtures.getPathToExportFile;
 import static com.googlecode.waitrest.Renderers.stringTemplateRenderer;
-import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.StringContains.containsString;
 
 public class WaitressTest {
     private Kitchen kitchen = Kitchen.kitchen(CookBook.create());
-    private Waitress waitress = new Waitress(kitchen, null);
+    private final Resources bindings = new RegisteredResources().add(AnnotatedBindings.annotatedClass(Waitress.class));
+    private Redirector redirector = new BaseUriRedirector(new BaseUri(new Uri("")), bindings);
+    private Waitress waitress = new Waitress(kitchen, redirector);
 
     @Test
     public void serveRequestResponseOrder() {
@@ -74,7 +75,7 @@ public class WaitressTest {
         String orders = Strings.toString(getClass().getResourceAsStream("linebreaks.txt"));
 
         waitress.importOrders(orders);
-        assertThat(waitress.serveGetOrder(RequestBuilder.get("/a").build()).entity().toString(), is("Hello\n\nJoe"));
+        assertThat(waitress.serveGetOrder(get("/a").build()).entity().toString(), is("Hello\n\nJoe"));
     }
 
     @Test
@@ -94,4 +95,30 @@ public class WaitressTest {
 
         assertThat(waitress.importOrders(orders).contains("2 orders imported"), is(true));
     }
+
+    @Test
+    public void importsOrdersFromFile() throws Exception {
+        final String ordersFile = getPathToExportFile();
+
+        waitress.importOrdersFromFile(ordersFile);
+
+        assertThat(waitress.serveGetOrder(get("/cheese").build()).entity().toString(), is("GET gouda\n"));
+        assertThat(waitress.serveGetOrder(post("/cheese").build()).entity().toString(), is("POST gouda\n"));
+        Files.delete(Paths.get(ordersFile));
+    }
+
+    @Test
+    public void deletesOrders() throws Exception {
+        final String ordersFile = getPathToExportFile();
+
+        waitress.importOrdersFromFile(ordersFile);
+
+        waitress.deleteAllOrders();
+
+        assertThat(waitress.serveGetOrder(get("/cheese").build()).status(), is(Status.NOT_FOUND));
+        assertThat(waitress.serveGetOrder(post("/cheese").build()).status(), is(Status.NOT_FOUND));
+
+        Files.delete(Paths.get(ordersFile));
+    }
+
 }

@@ -2,32 +2,13 @@ package com.googlecode.waitrest;
 
 
 import com.googlecode.funclate.Model;
-import com.googlecode.totallylazy.Callable1;
-import com.googlecode.totallylazy.Callables;
-import com.googlecode.totallylazy.Option;
-import com.googlecode.totallylazy.Pair;
-import com.googlecode.totallylazy.Sequence;
-import com.googlecode.totallylazy.Strings;
-import com.googlecode.totallylazy.Uri;
-import com.googlecode.totallylazy.regex.Matches;
-import com.googlecode.totallylazy.regex.Regex;
-import com.googlecode.utterlyidle.Redirector;
-import com.googlecode.utterlyidle.Request;
-import com.googlecode.utterlyidle.Requests;
-import com.googlecode.utterlyidle.Response;
-import com.googlecode.utterlyidle.Status;
-import com.googlecode.utterlyidle.annotations.FormParam;
-import com.googlecode.utterlyidle.annotations.GET;
-import com.googlecode.utterlyidle.annotations.HttpMethod;
-import com.googlecode.utterlyidle.annotations.POST;
-import com.googlecode.utterlyidle.annotations.PUT;
-import com.googlecode.utterlyidle.annotations.Path;
-import com.googlecode.utterlyidle.annotations.Priority;
-import com.googlecode.utterlyidle.annotations.Produces;
+import com.googlecode.totallylazy.*;
+import com.googlecode.totallylazy.numbers.Numbers;
+import com.googlecode.utterlyidle.*;
+import com.googlecode.utterlyidle.annotations.*;
 
+import java.io.File;
 import java.util.Map;
-import java.util.regex.MatchResult;
-import java.util.regex.Pattern;
 
 import static com.googlecode.funclate.Model.persistent.model;
 import static com.googlecode.totallylazy.Callables.first;
@@ -44,6 +25,7 @@ import static com.googlecode.utterlyidle.RequestBuilder.get;
 import static com.googlecode.utterlyidle.ResponseBuilder.response;
 import static com.googlecode.utterlyidle.Status.CREATED;
 import static com.googlecode.utterlyidle.Status.NOT_FOUND;
+import static com.googlecode.waitrest.Kitchen.prepareOrder;
 
 public class Waitress {
 
@@ -51,11 +33,13 @@ public class Waitress {
     public static final String RESPONSE_SEPARATOR = "---------- RESPONSE -----------";
     public static final String WAITRESS_ORDER_PATH = "waitrest/order";
     public static final String WAITRESS_IMPORT_PATH = "waitrest/import";
+    public static final String WAITRESS_IMPORT_FROM_FILE_PATH = "waitrest/importFromFile";
     public static final String WAITRESS_ORDERS_PATH = "waitrest/orders";
     public static final String WAITRESS_GET_ORDERS_PATH = "waitrest/orders/get";
+    public static final String WAITRESS_DELETE_ORDERS_PATH = "waitrest/orders/delete";
     private static final String ANY_PATH = "{path:^(?!waitrest/order|waitrest/orders|waitrest/orders/get|waitrest/export|waitrest/import).*}";
 
-    private Kitchen kitchen;
+    private final Kitchen kitchen;
     private final Redirector redirector;
 
     public Waitress(Kitchen kitchen, Redirector redirector) {
@@ -75,7 +59,12 @@ public class Waitress {
     @Priority(Priority.High)
     @Produces("text/html")
     public Model showMenu() {
-        return model().add("orderUrl", absolute(WAITRESS_ORDER_PATH)).add("ordersUrl", absolute(WAITRESS_ORDERS_PATH)).add("getOrdersUrl", absolute(WAITRESS_GET_ORDERS_PATH));
+        return model().add("orderUrl", absolute(WAITRESS_ORDER_PATH)).
+                add("ordersUrl", absolute(WAITRESS_ORDERS_PATH)).
+                add("getOrdersUrl", absolute(WAITRESS_GET_ORDERS_PATH)).
+                add("deleteOrdersUrl", absolute(WAITRESS_DELETE_ORDERS_PATH)).
+                add("importOrdersUrl", absolute(WAITRESS_IMPORT_PATH)).
+                add("importOrdersFromFileUrl", absolute(WAITRESS_IMPORT_FROM_FILE_PATH));
     }
 
     @GET
@@ -83,7 +72,7 @@ public class Waitress {
     @Produces("text/plain")
     @Priority(Priority.High)
     public Response allOrders() {
-        Map<Request, Response> orders = kitchen.allOrders();
+        Map<Request, Response> orders = kitchen.allOrdersInMemory();
         return response(Status.OK).entity(model().add("orders", orders).add("requestSeparator", REQUEST_SEPARATOR).add("responseSeparator", RESPONSE_SEPARATOR)).build();
     }
 
@@ -93,8 +82,26 @@ public class Waitress {
     @Priority(Priority.High)
     public String importOrders(@FormParam("orders") String orders) {
         Sequence<String> messages = sequence(orders.split(REQUEST_SEPARATOR)).filter(not(Strings.blank()));
-        messages.forEach(takeOrder());
+        messages.map(prepareOrder()).forEach(placeOrder());
         return messages.size() + " orders imported";
+    }
+
+    @POST
+    @Path(WAITRESS_IMPORT_FROM_FILE_PATH)
+    @Produces("text/plain")
+    public String importOrdersFromFile(@FormParam("importFile") String importFile) throws Exception {
+        final long start = System.currentTimeMillis();
+        File file = new File(importFile);
+
+        final Sequence<File> files = file.isFile() ? sequence(file) : Files.recursiveFiles(file).filter(Files.isFile()).filter(Files.hasSuffix("txt"));
+
+        final Number counter = files.mapConcurrently(new Callable1<File, Number>() {
+            @Override
+            public Number call(File file) throws Exception {
+                return kitchen.takeOrdersFrom(file);
+            }
+        }).fold(0, Numbers.add());
+        return counter + " orders imported in " +  ((System.currentTimeMillis() - start) / 1000) + " sec";
     }
 
     @GET
@@ -102,7 +109,7 @@ public class Waitress {
     @Produces("text/html")
     @Priority(Priority.High)
     public Response allGetOrders() {
-        Sequence<String> urls = sequence(kitchen.allOrders(HttpMethod.GET).keySet()).map(uri()).map(Callables.<Uri>asString());
+        Sequence<String> urls = sequence(kitchen.allOrdersInMemory(HttpMethod.GET).keySet()).map(uri()).map(Callables.<Uri>asString());
         return response(Status.OK).entity(model().add("urls", urls.toList())).build();
     }
 
@@ -139,14 +146,6 @@ public class Waitress {
         }
     }
 
-    private Model menuPageBaseModel(String req, String resp) {
-        return model().add("orderUrl", absolute(WAITRESS_ORDER_PATH)).
-                add("ordersUrl", absolute(WAITRESS_ORDERS_PATH)).
-                add("getOrdersUrl", absolute(WAITRESS_GET_ORDERS_PATH)).
-                add("request", req).
-                add("response", resp);
-    }
-
     @POST
     @Path(ANY_PATH)
     @Priority(Priority.Low)
@@ -162,17 +161,27 @@ public class Waitress {
         return created(put);
     }
 
-    private Callable1<String, Void> takeOrder() {
-        return new Callable1<String, Void>() {
+    @POST
+    @Path(WAITRESS_DELETE_ORDERS_PATH)
+    @Priority(Priority.High)
+    public Response deleteAllOrders() {
+        kitchen.deleteAllOrders();
+        return redirector.seeOther(method(on(Waitress.class).allOrders()));
+    }
+
+    private Model menuPageBaseModel(String req, String resp) {
+        return model().add("orderUrl", absolute(WAITRESS_ORDER_PATH)).
+                add("ordersUrl", absolute(WAITRESS_ORDERS_PATH)).
+                add("getOrdersUrl", absolute(WAITRESS_GET_ORDERS_PATH)).
+                add("request", req).
+                add("response", resp);
+    }
+
+    private Block<Pair<Request, Response>> placeOrder() {
+        return new Block<Pair<Request, Response>>() {
             @Override
-            public Void call(String requestAndResponse) throws Exception {
-                Sequence<String> requestAndResponseSequence = sequence(requestAndResponse.split(RESPONSE_SEPARATOR));
-                Matches matches = Regex.regex("^[\r\n]{1,2}(.*)[\r\n]{3,6}$", Pattern.DOTALL).findMatches(requestAndResponseSequence.second());
-                if(matches.isEmpty()) {
-                    throw new IllegalArgumentException("Request response not in expected waitrest format: " + requestAndResponseSequence.second());
-                }
-                kitchen.receiveOrder(parseRequest(requestAndResponseSequence.first().trim()), parseResponse(matches.head().group(1)));
-                return null;
+            public void execute(Pair<Request, Response> requestAndResponse) throws Exception {
+                kitchen.receiveOrder(requestAndResponse.first(), requestAndResponse.second());
             }
         };
     }

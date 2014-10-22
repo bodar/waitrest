@@ -1,3 +1,4 @@
+$if(orders)$
 $orders.keys: { request |
 $requestSeparator$
 $request$
@@ -6,3 +7,6 @@ $orders.(request)$
 
 
 }$
+$else$
+No orders found.
+$endif$
