@@ -9,18 +9,22 @@ import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 import static com.googlecode.totallylazy.Option.none;
 import static com.googlecode.utterlyidle.HttpHeaders.CONTENT_TYPE;
-import static com.googlecode.utterlyidle.MediaType.APPLICATION_FORM_URLENCODED;
-import static com.googlecode.utterlyidle.MediaType.APPLICATION_SVG_XML;
-import static com.googlecode.utterlyidle.MediaType.TEXT_PLAIN;
+import static com.googlecode.utterlyidle.MediaType.*;
 import static com.googlecode.utterlyidle.RequestBuilder.get;
 import static com.googlecode.utterlyidle.RequestBuilder.post;
 import static com.googlecode.utterlyidle.ResponseBuilder.response;
 import static com.googlecode.utterlyidle.Status.NO_CONTENT;
 import static com.googlecode.utterlyidle.Status.OK;
+import static com.googlecode.waitrest.Fixtures.getPathToExportFile;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 public class KitchenTest {
     private Kitchen kitchen = Kitchen.kitchen(CookBook.create());
@@ -129,4 +133,36 @@ public class KitchenTest {
         kitchen.receiveOrder(post("/foo").build(), response(NO_CONTENT).build());
         assertThat(kitchen.serve(get("/foo").build()).isEmpty(), is(true));
     }
+
+    @Test
+    public void shouldImportFromFile() throws Exception {
+        final String pathToExportFile = getPathToExportFile();
+
+        final int ordersTaken = kitchen.takeOrdersFrom(new File(pathToExportFile));
+
+        assertThat(ordersTaken, is(2));
+        assertThat(kitchen.serve(get("/cheese").build()).get().entity().toString(), is("GET gouda\n"));
+        assertThat(kitchen.serve(post("/cheese").build()).get().entity().toString(), is("POST gouda\n"));
+
+        Files.delete(Paths.get(pathToExportFile));
+    }
+
+
+    @Test
+    public void shouldDeleteBothImMemoryAndImportedFromFileOrders() throws Exception {
+        final String pathToExportFile = getPathToExportFile();
+
+        kitchen.takeOrdersFrom(new File(pathToExportFile));
+
+        kitchen.receiveOrder(get("/foo?bar=dan").build(), response().entity("dan").build());
+
+        kitchen.deleteAllOrders();
+
+        assertTrue(kitchen.serve(get("/foo?bar=dan").build()).isEmpty());
+        assertTrue(kitchen.serve(get("/cheese").build()).isEmpty());
+        assertTrue(kitchen.serve(post("/cheese").build()).isEmpty());
+
+        Files.delete(Paths.get(pathToExportFile));
+    }
+
 }

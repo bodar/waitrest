@@ -38,6 +38,7 @@
             sampleData("textarea", ".samplePOST", "data-post");
             sampleData("textarea", ".samplePOSTWithParams", "data-postParams");
             reset(".reset", "textarea");
+            confirmDelete("#deleteAllOrders");
         });
 
         function sampleData(input, populateTrigger, dataSourceAttr) {
@@ -53,6 +54,12 @@
             $(resetTrigger).click(function() {
                 $(input).val("");
                 return false;
+            });
+        }
+
+        function confirmDelete(deleteTrigger) {
+            $(deleteTrigger).click(function() {
+                return confirm("Are you sure you want to delete all orders?");
             });
         }
     </script>
@@ -83,11 +90,21 @@
 <div>
     <a href="${ordersUrl}">View all orders</a>
     <a href="${getOrdersUrl}">View all GET orders</a>
-</div>
 <div>
-    <form action="/waitrest/import" method="POST">
+    <form action="${importOrdersUrl}" method="POST">
         <textarea name="orders" class="import"></textarea>
         <input type="submit" value="Import"/>
+    </form>
+</div>
+<div>
+    <form action="${importOrdersFromFileUrl}" method="POST">
+        <label for="importFile">Full path to the import .txt file or folder:</label><input type="text" name="importFile" id="importFile" size="150"/>
+        <input type="submit" value="Import Orders"/>
+    </form>
+</div>
+<div>
+    <form action="${deleteOrdersUrl}" method="POST">
+        <input id="deleteAllOrders" type="submit" value="Delete All Orders"/>
     </form>
 </div>
 </body>
