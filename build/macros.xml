@@ -33,7 +33,7 @@
 
         <sequential>
             <mkdir dir="@{classes}"/>
-            <javac srcdir="@{src}" destdir="@{classes}" classpathref="@{classpathref}" target="1.7" debug="true" includeantruntime="false"/>
+            <javac srcdir="@{src}" destdir="@{classes}" classpathref="@{classpathref}" source="1.7" target="1.7" debug="true" includeantruntime="false"/>
 
             <copy todir="@{classes}">
                 <fileset dir="@{src}">

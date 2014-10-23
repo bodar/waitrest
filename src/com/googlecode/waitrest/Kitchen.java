@@ -8,10 +8,7 @@ import com.googlecode.utterlyidle.io.HierarchicalPath;
 
 import java.io.File;
 import java.io.RandomAccessFile;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
@@ -186,6 +183,18 @@ public class Kitchen {
 
     private int hashCodeOfRequest(Request request) {
         return request.uri().dropScheme().dropAuthority().toString().hashCode();
+    }
+
+    public Sequence<Pair<String, Integer>> importedOrderCounts() {
+        final Collection<Set<LocationInFile>> values = ordersImportedFromFiles.values();
+        return Sequences.flatMap(values, Functions.<Set<LocationInFile>>identity()).
+                groupBy(LocationInFile.filePath()).
+                mapConcurrently(new Mapper<Group<String, LocationInFile>, Pair<String, Integer>>() {
+                    @Override
+                    public Pair<String, Integer> call(Group<String, LocationInFile> locationsGroupedByPath) throws Exception {
+                        return Pair.pair(locationsGroupedByPath.key(), locationsGroupedByPath.size());
+                    }
+                });
     }
 
 }
