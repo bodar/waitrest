@@ -2,7 +2,7 @@ mvn:org.hamcrest:hamcrest-core:jar:1.2
 mvn:org.hamcrest:hamcrest-library:jar:1.2
 mvn:junit:junit-dep:jar:4.8.2
 
-mvn://repo.bodar.com/com.googlecode.utterlyidle:utterlyidle:pack|sources:1.11
+mvn://repo.bodar.com/com.googlecode.utterlyidle:utterlyidle:pack|sources:1.13
 mvn://repo.bodar.com/com.googlecode.totallylazy:totallylazy:pack|sources:1.22
 mvn://repo.bodar.com/com.googlecode.yadic:yadic:pack|sources:1.11
 mvn://repo.bodar.com/com.googlecode.funclate:funclate:pack|sources:1.1

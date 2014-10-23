@@ -5,6 +5,7 @@ import com.googlecode.funclate.stringtemplate.EnhancedStringTemplateGroup;
 import com.googlecode.totallylazy.Callable2;
 import com.googlecode.totallylazy.Strings;
 import com.googlecode.utterlyidle.Renderer;
+import com.googlecode.utterlyidle.rendering.ObjectRenderer;
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
 
@@ -37,6 +38,11 @@ public class Renderers {
             }
         };
     }
+
+    public static Renderer<Object> objectRenderer() {
+        return new ObjectRenderer();
+    }
+
 
     private static String removeUnusedPlaceholders(String content) {
         return content.replaceAll(format("\\$\\{.*\\}"), "");

@@ -1,5 +1,7 @@
 package com.googlecode.waitrest;
 
+import com.googlecode.totallylazy.Mapper;
+
 public class LocationInFile {
     private String filePath;
     private long position;
@@ -8,6 +10,16 @@ public class LocationInFile {
         this.filePath = filePath;
         this.position = position;
     }
+
+    public static Mapper<LocationInFile, String> filePath() {
+        return new Mapper<LocationInFile, String>() {
+            @Override
+            public String call(LocationInFile locationInFile) throws Exception {
+                return locationInFile.getFilePath();
+            }
+        };
+    }
+
     public String getFilePath() {
         return filePath;
     }

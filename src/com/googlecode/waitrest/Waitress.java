@@ -21,6 +21,9 @@ import static com.googlecode.utterlyidle.HttpHeaders.CONTENT_TYPE;
 import static com.googlecode.utterlyidle.HttpHeaders.LOCATION;
 import static com.googlecode.utterlyidle.HttpMessageParser.parseRequest;
 import static com.googlecode.utterlyidle.HttpMessageParser.parseResponse;
+import static com.googlecode.utterlyidle.MediaType.APPLICATION_JSON;
+import static com.googlecode.utterlyidle.MediaType.TEXT_HTML;
+import static com.googlecode.utterlyidle.MediaType.TEXT_PLAIN;
 import static com.googlecode.utterlyidle.RequestBuilder.get;
 import static com.googlecode.utterlyidle.ResponseBuilder.response;
 import static com.googlecode.utterlyidle.Status.CREATED;
@@ -37,6 +40,7 @@ public class Waitress {
     public static final String WAITRESS_ORDERS_PATH = "waitrest/orders";
     public static final String WAITRESS_GET_ORDERS_PATH = "waitrest/orders/get";
     public static final String WAITRESS_DELETE_ORDERS_PATH = "waitrest/orders/delete";
+    public static final String WAITRESS_ORDER_COUNTS_PATH = "waitrest/orders/counts";
     private static final String ANY_PATH = "{path:^(?!waitrest/order|waitrest/orders|waitrest/orders/get|waitrest/export|waitrest/import).*}";
 
     private final Kitchen kitchen;
@@ -57,19 +61,20 @@ public class Waitress {
     @GET
     @Path(WAITRESS_ORDER_PATH)
     @Priority(Priority.High)
-    @Produces("text/html")
+    @Produces(TEXT_HTML)
     public Model showMenu() {
         return model().add("orderUrl", absolute(WAITRESS_ORDER_PATH)).
                 add("ordersUrl", absolute(WAITRESS_ORDERS_PATH)).
                 add("getOrdersUrl", absolute(WAITRESS_GET_ORDERS_PATH)).
                 add("deleteOrdersUrl", absolute(WAITRESS_DELETE_ORDERS_PATH)).
                 add("importOrdersUrl", absolute(WAITRESS_IMPORT_PATH)).
-                add("importOrdersFromFileUrl", absolute(WAITRESS_IMPORT_FROM_FILE_PATH));
+                add("importOrdersFromFileUrl", absolute(WAITRESS_IMPORT_FROM_FILE_PATH)).
+                add("getOrderCounts", absolute(WAITRESS_ORDER_COUNTS_PATH));
     }
 
     @GET
     @Path(WAITRESS_ORDERS_PATH)
-    @Produces("text/plain")
+    @Produces(TEXT_PLAIN)
     @Priority(Priority.High)
     public Response allOrders() {
         Map<Request, Response> orders = kitchen.allOrdersInMemory();
@@ -78,7 +83,7 @@ public class Waitress {
 
     @POST
     @Path(WAITRESS_IMPORT_PATH)
-    @Produces("text/plain")
+    @Produces(TEXT_PLAIN)
     @Priority(Priority.High)
     public String importOrders(@FormParam("orders") String orders) {
         Sequence<String> messages = sequence(orders.split(REQUEST_SEPARATOR)).filter(not(Strings.blank()));
@@ -88,7 +93,7 @@ public class Waitress {
 
     @POST
     @Path(WAITRESS_IMPORT_FROM_FILE_PATH)
-    @Produces("text/plain")
+    @Produces(TEXT_PLAIN)
     public String importOrdersFromFile(@FormParam("importFile") String importFile) throws Exception {
         final long start = System.currentTimeMillis();
         File file = new File(importFile);
@@ -106,11 +111,27 @@ public class Waitress {
 
     @GET
     @Path(WAITRESS_GET_ORDERS_PATH)
-    @Produces("text/html")
+    @Produces(TEXT_HTML)
     @Priority(Priority.High)
     public Response allGetOrders() {
         Sequence<String> urls = sequence(kitchen.allOrdersInMemory(HttpMethod.GET).keySet()).map(uri()).map(Callables.<Uri>asString());
         return response(Status.OK).entity(model().add("urls", urls.toList())).build();
+    }
+
+    @GET
+    @Path(WAITRESS_ORDER_COUNTS_PATH)
+    @Priority(Priority.High)
+    @Produces({TEXT_HTML, APPLICATION_JSON})
+    public Model serveGetOrderCounts() {
+        final int ordersInMemoryCount = kitchen.allOrdersInMemory().size();
+        final Sequence<Model> importedOrderCounts = kitchen.importedOrderCounts().map(new Mapper<Pair<String, Integer>, Model>() {
+            @Override
+            public Model call(Pair<String, Integer> ordersCount) throws Exception {
+                return model().add("filePath", ordersCount.first()).add("count", ordersCount.second());
+            }
+        });
+        final Number totalImportedOrdersCount = importedOrderCounts.map(Model.functions.value("count", Integer.class)).fold(0, Numbers.add());
+        return model().add("inMemoryCount", ordersInMemoryCount).add("importedOrderCounts", importedOrderCounts).add("totalImportedOrderCount", totalImportedOrdersCount);
     }
 
     @GET

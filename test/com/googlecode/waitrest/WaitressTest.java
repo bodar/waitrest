@@ -10,6 +10,7 @@ import org.junit.Test;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+import static com.googlecode.funclate.Model.persistent.model;
 import static com.googlecode.utterlyidle.HttpHeaders.CONTENT_TYPE;
 import static com.googlecode.utterlyidle.MediaType.TEXT_PLAIN;
 import static com.googlecode.utterlyidle.RequestBuilder.*;
@@ -18,6 +19,7 @@ import static com.googlecode.utterlyidle.Status.OK;
 import static com.googlecode.waitrest.Fixtures.getPathToExportFile;
 import static com.googlecode.waitrest.Renderers.stringTemplateRenderer;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.StringContains.containsString;
 
@@ -117,6 +119,24 @@ public class WaitressTest {
 
         assertThat(waitress.serveGetOrder(get("/cheese").build()).status(), is(Status.NOT_FOUND));
         assertThat(waitress.serveGetOrder(post("/cheese").build()).status(), is(Status.NOT_FOUND));
+
+        Files.delete(Paths.get(ordersFile));
+    }
+
+    @Test
+    public void shouldReturnOrderCounts() throws Exception {
+        final String ordersFile = getPathToExportFile();
+
+        waitress.importOrdersFromFile(ordersFile);
+        waitress.takeOrder("GET http://someserver:1234/some/path HTTP/1.1", "HTTP/1.1 200 OK\n\n<?xml version=\"1.0\" encoding=\"UTF-8\"?><feed xmlns=\"http://www.w3.org/2005/Atom\"><url>http://someserver:1234/foo</url></feed>");
+        waitress.takeOrder("GET http://someserver:1234/some/path2 HTTP/1.1", "HTTP/1.1 200 OK\n\n<?xml version=\"1.0\" encoding=\"UTF-8\"?><feed xmlns=\"http://www.w3.org/2005/Atom\"><url>http://unrelatedServer:1234/foo</url></feed>");
+
+
+        final Model model = waitress.serveGetOrderCounts();
+
+        assertThat(model.get("inMemoryCount", Integer.class), is(2));
+        assertThat(model.get("totalImportedOrderCount", Integer.class), is(2));
+        assertThat(model.getValues("importedOrderCounts", Model.class), contains(model().add("filePath", ordersFile).add("count", 2)));
 
         Files.delete(Paths.get(ordersFile));
     }

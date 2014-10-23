@@ -14,6 +14,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import static com.googlecode.totallylazy.Option.none;
+import static com.googlecode.totallylazy.Pair.pair;
+import static com.googlecode.totallylazy.Sequences.one;
 import static com.googlecode.utterlyidle.HttpHeaders.CONTENT_TYPE;
 import static com.googlecode.utterlyidle.MediaType.*;
 import static com.googlecode.utterlyidle.RequestBuilder.get;
@@ -161,6 +163,17 @@ public class KitchenTest {
         assertTrue(kitchen.serve(get("/foo?bar=dan").build()).isEmpty());
         assertTrue(kitchen.serve(get("/cheese").build()).isEmpty());
         assertTrue(kitchen.serve(post("/cheese").build()).isEmpty());
+
+        Files.delete(Paths.get(pathToExportFile));
+    }
+
+    @Test
+    public void shouldProvideBreakdownOfImportedFromFileOrders() throws Exception {
+        final String pathToExportFile = getPathToExportFile();
+
+        kitchen.takeOrdersFrom(new File(pathToExportFile));
+
+        assertThat(kitchen.importedOrderCounts(), is(one(pair(pathToExportFile, 2))));
 
         Files.delete(Paths.get(pathToExportFile));
     }
