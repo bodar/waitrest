@@ -2,11 +2,7 @@ package com.googlecode.waitrest;
 
 import com.googlecode.totallylazy.Closeables;
 import com.googlecode.totallylazy.Uri;
-import com.googlecode.utterlyidle.Application;
-import com.googlecode.utterlyidle.BasePath;
-import com.googlecode.utterlyidle.Server;
-import com.googlecode.utterlyidle.ServerConfiguration;
-import com.googlecode.utterlyidle.httpserver.RestServer;
+import com.googlecode.utterlyidle.*;
 
 import java.io.Closeable;
 import java.net.URL;
@@ -17,21 +13,21 @@ public class Waitrest implements Closeable {
     private Server server;
     private Restaurant application;
 
-    public Waitrest(String basePath, Integer port, Class<? extends Server> serverClass) {
+    public Waitrest(String basePath, ServerConfiguration configuration) {
         try {
             application = new Restaurant(BasePath.basePath(basePath));
-            this.server = initServer(port, serverClass);
+            this.server = ApplicationBuilder.application(application).start(configuration);
         } catch (Exception e) {
             throw new RuntimeException("Couldn't start Waitrest: " + e.getMessage());
         }
     }
 
-    public Waitrest(Integer port, Class<? extends Server> serverClass) {
-        this("/", port, serverClass);
+    public Waitrest(ServerConfiguration serverConfiguration) {
+        this("/", serverConfiguration);
     }
 
     public Waitrest(String basePath, Integer port) {
-        this(basePath, port, RestServer.class);
+        this(basePath, serverConfiguration(port));
     }
 
     public Waitrest(Integer port) {
@@ -39,7 +35,7 @@ public class Waitrest implements Closeable {
     }
 
     public Waitrest() {
-        this("/", null);
+        this("/", defaultConfiguration());
     }
 
     public void close() {
@@ -63,14 +59,8 @@ public class Waitrest implements Closeable {
         return application;
     }
 
-    private Server initServer(Integer port, Class<? extends Server> serverClass) throws Exception {
-        ServerConfiguration configuration = (port == null ? defaultConfiguration() : defaultConfiguration().port(port));
-        if(serverClass.equals(RestServer.class)){
-            return new RestServer(application, configuration);
-        } else if(serverClass.equals(com.googlecode.utterlyidle.jetty.RestServer.class)){
-            return com.googlecode.utterlyidle.jetty.RestServer.restServer(application, configuration);
-        }
-        throw new RuntimeException(String.format("The server class %s is currently not supported", serverClass.getName()));
+    private static ServerConfiguration serverConfiguration(Integer port) {
+        return (port == null ? defaultConfiguration() : defaultConfiguration().port(port));
     }
 
 }
