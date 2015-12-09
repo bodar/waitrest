@@ -13,13 +13,13 @@ import java.util.Properties;
 
 public class Waitrest implements Closeable {
     private Server server;
-    private Restaurant application;
+    private Application application;
 
     public Waitrest(Properties properties) {
         ServerConfiguration configuration = new ServerConfiguration(properties);
         try {
-            application = new Restaurant(configuration.basePath());
-            this.server = ApplicationBuilder.application(application).start(configuration);
+            this.server = ApplicationBuilder.application(Restaurant.class).start(configuration);
+            this.application = server.application();
         } catch (Exception e) {
             throw new RuntimeException("Couldn't start Waitrest: " + e.getMessage());
         }
