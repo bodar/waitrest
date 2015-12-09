@@ -11,6 +11,10 @@ import java.io.Closeable;
 import java.net.URL;
 import java.util.Properties;
 
+import static com.googlecode.utterlyidle.ServerConfiguration.SERVER_BASE_PATH;
+import static com.googlecode.utterlyidle.ServerConfiguration.SERVER_CLASS;
+import static com.googlecode.utterlyidle.ServerConfiguration.SERVER_PORT;
+
 public class Waitrest implements Closeable {
     private Server server;
     private Application application;
@@ -26,7 +30,7 @@ public class Waitrest implements Closeable {
     }
 
     public Waitrest(String basePath, Integer port) {
-        this(serverProperties(basePath, port));
+        this(serverProperties(basePath, port == null? null: port.toString(), null));
     }
 
     public Waitrest(Integer port) {
@@ -58,10 +62,11 @@ public class Waitrest implements Closeable {
         return application;
     }
 
-    private static Properties serverProperties(String basePath, Integer port) {
+    public static Properties serverProperties(String basePath, String port, String serverClass) {
         Properties properties = new Properties();
-        if(basePath != null) properties.setProperty(ServerConfiguration.SERVER_BASE_PATH, basePath);
-        if(port != null) properties.setProperty(ServerConfiguration.SERVER_PORT, port.toString());
+        if(basePath != null) properties.setProperty(SERVER_BASE_PATH, basePath);
+        if(port != null) properties.setProperty(SERVER_PORT, port);
+        if(serverClass != null) properties.setProperty(SERVER_CLASS, serverClass);
         return properties;
     }
 
