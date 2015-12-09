@@ -20,17 +20,12 @@ public class Waitrest implements Closeable {
     private Application application;
 
     public Waitrest(Properties properties) {
-        ServerConfiguration configuration = new ServerConfiguration(properties);
-        try {
-            this.server = ApplicationBuilder.application(Restaurant.class).start(configuration);
-            this.application = server.application();
-        } catch (Exception e) {
-            throw new RuntimeException("Couldn't start Waitrest: " + e.getMessage());
-        }
+        this.server = ApplicationBuilder.application(Restaurant.class).start(new ServerConfiguration(properties));
+        this.application = server.application();
     }
 
     public Waitrest(String basePath, Integer port) {
-        this(serverProperties(basePath, port == null? null: port.toString(), null));
+        this(serverProperties(basePath, port == null ? null : port.toString(), null));
     }
 
     public Waitrest(Integer port) {
@@ -64,9 +59,9 @@ public class Waitrest implements Closeable {
 
     public static Properties serverProperties(String basePath, String port, String serverClass) {
         Properties properties = new Properties();
-        if(basePath != null) properties.setProperty(SERVER_BASE_PATH, basePath);
-        if(port != null) properties.setProperty(SERVER_PORT, port);
-        if(serverClass != null) properties.setProperty(SERVER_CLASS, serverClass);
+        if (basePath != null) properties.setProperty(SERVER_BASE_PATH, basePath);
+        if (port != null) properties.setProperty(SERVER_PORT, port);
+        if (serverClass != null) properties.setProperty(SERVER_CLASS, serverClass);
         return properties;
     }
 
