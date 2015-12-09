@@ -1,7 +1,5 @@
 package com.googlecode.waitrest;
 
-import com.googlecode.utterlyidle.ServerConfiguration;
-
 import java.util.Properties;
 
 import static com.googlecode.utterlyidle.ServerConfiguration.SERVER_CLASS;
@@ -9,7 +7,7 @@ import static com.googlecode.utterlyidle.ServerConfiguration.SERVER_PORT;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        new Waitrest(new ServerConfiguration(serverProperties(args)));
+        new Waitrest(serverProperties(args));
     }
 
     private static Properties serverProperties(String[] args) {
